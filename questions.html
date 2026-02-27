@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
-        /* === تصميم مضغوط وواضح === */
+        /* نفس الأنماط السابقة - احتفظ بها كما هي */
         * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI','Cairo',Tahoma,sans-serif; }
 
         :root {
@@ -441,9 +441,9 @@
     </div>
 </div>
 
+<script src="database.js"></script>
 <script>
     (function() {
-        const STORAGE_SESSIONS = 'reading_sessions';
         const sessionData = JSON.parse(sessionStorage.getItem('currentReadingSession'));
 
         if (!sessionData) {
@@ -460,13 +460,11 @@
 
         document.getElementById('headerLessonName').textContent = lessonTitle;
 
-        // دالة تحويل الأرقام (اختياري)
         function toIndianNumbers(num) {
             const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
             return num.toString().replace(/\d/g, (d) => arabicNumbers[d]);
         }
 
-        // التحقق من صحة السؤال
         function validateQuestion(q) {
             if (!q) return false;
             if (q.type === 'order') {
@@ -486,7 +484,6 @@
             return;
         }
 
-        // اختيار الأسئلة دون تكرار
         function selectQuestions(questionsArray, count = 10) {
             if (questionsArray.length <= count) {
                 return [...questionsArray];
@@ -640,7 +637,7 @@
             }
         });
 
-        function submitAnswers() {
+        async function submitAnswers() {
             if (quizSubmitted) return;
             if (!confirm('هل أنت متأكد من تسليم الإجابات؟')) return;
 
@@ -721,7 +718,35 @@
             prevBtn.disabled = true;
             nextBtn.disabled = true;
 
-            saveFinalSession({ correct: correctAnswersCount, total, score });
+            // حفظ البيانات في IndexedDB
+            try {
+                // حفظ جلسة القراءة
+                await saveReadingSession({
+                    lessonId: sessionData.lessonId,
+                    lessonTitle: sessionData.lessonTitle,
+                    speed: sessionData.speed,
+                    errors: sessionData.errors,
+                    duration: sessionData.duration,
+                    wordsRead: sessionData.wordsRead || 0
+                });
+
+                // حفظ نتيجة الاختبار
+                await saveQuizResult({
+                    lessonId: sessionData.lessonId,
+                    lessonTitle: sessionData.lessonTitle,
+                    score: score,
+                    correct: correctAnswersCount,
+                    total: total
+                });
+
+                console.log('تم حفظ البيانات بنجاح في IndexedDB');
+            } catch (error) {
+                console.error('خطأ في حفظ البيانات:', error);
+                alert('حدث خطأ أثناء حفظ النتائج، ولكن سيتم عرض التقرير.');
+            }
+
+            // إزالة بيانات الجلسة من sessionStorage
+            sessionStorage.removeItem('currentReadingSession');
         }
 
         submitBtn.addEventListener('click', submitAnswers);
@@ -734,29 +759,6 @@
         window.addEventListener('click', (e) => {
             if (e.target === reportModal) closeModal();
         });
-
-        function saveFinalSession(quizResult) {
-            const sessions = JSON.parse(localStorage.getItem(STORAGE_SESSIONS)) || [];
-            const newSession = {
-                id: Date.now().toString(),
-                lessonId: sessionData.lessonId,
-                lessonTitle: sessionData.lessonTitle,
-                grade: sessionData.grade,
-                semester: sessionData.semester,
-                startTime: sessionData.startTime,
-                endTime: sessionData.endTime,
-                duration: sessionData.duration,
-                speed: sessionData.speed,
-                errors: sessionData.errors,
-                status: 'completed',
-                questionsAnswered: quizResult.total,
-                questionsCorrect: quizResult.correct,
-                comprehensionLevel: quizResult.score >= 85 ? 'متقدم' : (quizResult.score >= 65 ? 'متوسط' : 'مبتدئ')
-            };
-            sessions.push(newSession);
-            localStorage.setItem(STORAGE_SESSIONS, JSON.stringify(sessions));
-            sessionStorage.removeItem('currentReadingSession');
-        }
 
         function escapeHtml(unsafe) {
             if (typeof unsafe !== 'string') return '';
