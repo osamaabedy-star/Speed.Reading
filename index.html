@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amiri&family=Almarai:wght@400;700&family=Readex+Pro:wght@400;700&family=Katibeh&family=Lalezar&family=Markazi+Text:wght@400;700&family=Scheherazade+New:wght@400;700&family=Harmattan:wght@400;700&family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* نفس الأنماط السابقة - يمكنك الاحتفاظ بها كما هي */
         :root {
             --primary: #4361ee;
             --primary-light: #4895ef;
@@ -58,7 +57,6 @@
             max-width: 1400px;
             margin: 0 auto;
         }
-        /* الهيدر */
         .header {
             background: var(--card-bg);
             border-radius: var(--radius-lg);
@@ -136,6 +134,25 @@
             align-items: center;
             gap: 5px;
         }
+        .reports-link {
+            background: var(--primary);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: 600;
+            transition: var(--transition);
+            border: 1px solid var(--primary);
+        }
+        .reports-link:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
         .header-actions {
             display: flex;
             align-items: center;
@@ -184,7 +201,6 @@
             transform: scale(1.1);
             background: var(--primary-dark);
         }
-        /* باقي الأنماط (نفس السابق) - سأختصرها هنا للقراءة، لكن يجب نسخها كاملة من ملفك الأصلي */
         .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 768px) { body { padding: 24px; } .header { padding: 16px 28px; } .header h1 { font-size: 1.6rem; } .header p { font-size: 0.85rem; } .school-logo { height: 64px; } .theme-btn, .help-header-btn { width: 44px; height: 44px; font-size: 1.2rem; } .main-grid { grid-template-columns: 0.8fr 1.5fr; } }
         .settings-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-md); border: 1px solid var(--border); backdrop-filter: blur(10px); position: relative; top: 0; }
@@ -275,7 +291,6 @@
 </head>
 <body data-theme="light">
 <div class="container">
-    <!-- الهيدر مع معلومات المستخدم -->
     <div class="header">
         <div class="logo-container">
             <img src="https://www.wzufa.com/wp-content/uploads/2022/07/Riyadh-Al-Ebdaa-Schools.png" alt="شعار مدارس الرياض الإبداع" class="school-logo">
@@ -285,11 +300,11 @@
             </div>
         </div>
         
-        <!-- معلومات المستخدم -->
         <div class="user-info" id="userInfo">
             <div class="user-details" id="userDetails">
                 <!-- سيتم تعبئتها عبر JavaScript -->
             </div>
+            <a href="reports.html" class="reports-link"><i class="fas fa-chart-line"></i> تقاريري</a>
             <button id="logoutBtn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> خروج</button>
         </div>
 
@@ -303,9 +318,7 @@
         </div>
     </div>
 
-    <!-- المحتوى الرئيسي -->
     <div class="main-grid">
-        <!-- العمود الأيمن: الإعدادات (نفس السابق) -->
         <div class="settings-card">
             <h3 class="section-title"><i class="fas fa-sliders-h"></i> الإعدادات</h3>
             
@@ -407,7 +420,6 @@
             </div>
         </div>
 
-        <!-- العمود الأيسر: الدروس وزر البدء -->
         <div class="lessons-column">
             <div class="lessons-header">
                 <h3><i class="fas fa-book"></i> النصوص المتاحة</h3>
@@ -434,7 +446,6 @@
     </div>
 </div>
 
-<!-- مودال المساعدة -->
 <div class="help-modal" id="helpModal">
     <div class="help-content">
         <button class="close-help" id="closeHelp"><i class="fas fa-times"></i></button>
@@ -453,34 +464,28 @@
 
 <script src="database.js"></script>
 <script>
-    // التحقق من تسجيل الدخول
     (function checkLogin() {
         const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
         if (!currentUser) {
             window.location.href = 'login.html';
             return;
         }
-        // عرض معلومات المستخدم
         displayUserInfo(currentUser);
     })();
 
     function displayUserInfo(user) {
         const detailsDiv = document.getElementById('userDetails');
-        // عرض اسم المستخدم، رقم الحساب، ورقم الجوال
         detailsDiv.innerHTML = `
             <span class="user-detail-item"><i class="fas fa-user"></i> ${escapeHtml(user.fullName || user.username)}</span>
-            <span class="user-detail-item"><i class="fas fa-id-card"></i> ${escapeHtml(user.accountNumber || '---')}</span>
             <span class="user-detail-item"><i class="fas fa-phone"></i> ${escapeHtml(user.phone || '---')}</span>
         `;
     }
 
-    // دالة تحويل الأرقام الغربية إلى هندية
     function toIndianNumbers(num) {
         const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
         return num.toString().replace(/\d/g, (d) => arabicNumbers[d]);
     }
 
-    // ========== بيانات الدروس ==========
     let lessonsData = [];
     let selectedLessonId = null;
     let currentFont = "'Amiri', serif";
@@ -491,7 +496,6 @@
     let currentFontSize = 28;
     let searchTerm = '';
 
-    // عناصر DOM
     const lessonsGrid = document.getElementById('lessonsGrid');
     const startBtn = document.getElementById('startBtn');
     const fontPreview = document.getElementById('fontPreview');
@@ -500,7 +504,6 @@
     const fontSizeValue = document.getElementById('fontSizeValue');
     const gradeSection = document.getElementById('gradeSection');
 
-    // عناصر المساعدة
     const helpBtn = document.getElementById('helpBtn');
     const helpModal = document.getElementById('helpModal');
     const closeHelp = document.getElementById('closeHelp');
@@ -519,7 +522,6 @@
         }
     });
 
-    // دوال تحويل رقم الصف والفصل إلى النص الكامل
     function getGradeFullName(gradeNumber) {
         const gradeNum = parseInt(gradeNumber, 10);
         const grades = [
@@ -537,19 +539,16 @@
         return semesterNumber === '1' ? 'الفصل الدراسي الأول' : 'الفصل الدراسي الثاني';
     }
 
-    // تحديث معاينة الخط
     function updateFontPreview() {
         fontPreview.style.fontFamily = currentFont;
         fontPreview.style.fontSize = currentFontSize + 'px';
         fontSizeValue.textContent = toIndianNumbers(currentFontSize);
     }
 
-    // تحديث عرض السرعة
     function updateSpeedDisplay() {
         speedVal.textContent = toIndianNumbers(currentSpeed);
     }
 
-    // ========== تحميل الدروس وحفظها في localStorage (باستخدام Promise.allSettled) ==========
     async function loadAllLessons() {
         const files = [
             'primary_first.json',
@@ -585,7 +584,6 @@
         }
     }
 
-    // عرض الدروس في الشبكة مع فلترة
     function renderLessons() {
         if (!currentSemester || !currentGrade) {
             lessonsGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-light);">
@@ -664,7 +662,6 @@
         window.location.href = 'read.html';
     }
 
-    // ========== إعدادات المستخدم ==========
     window.setTheme = function(theme) {
         document.body.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
@@ -727,7 +724,6 @@
         localStorage.setItem('USER_PREFS_KEY', JSON.stringify(prefs));
     }
 
-    // ========== Event Listeners ==========
     document.getElementById('speedSlider').addEventListener('input', function(e) {
         currentSpeed = e.target.value;
         updateSpeedDisplay();
@@ -811,7 +807,6 @@
         });
     }
 
-    // التهيئة
     window.onload = () => {
         loadUserPrefs();
         loadAllLessons();
