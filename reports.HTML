@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تقاريري - منصة القراءة السريعة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --accent: #f72585;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #475569;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --radius-lg: 32px;
+            --radius-md: 24px;
+            --radius-sm: 16px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+        [data-theme="comfort"] {
+            --bg: #f5e9da;
+            --card-bg: #fff7ed;
+            --text: #5e4b3c;
+            --text-light: #8b7a6b;
+            --border: #d9c9b4;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            transition: var(--transition);
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .logo i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+        .nav-link {
+            padding: 8px 18px;
+            border-radius: 40px;
+            background: var(--bg);
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .nav-link:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+            text-align: center;
+            transition: var(--transition);
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1.2;
+        }
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        @media (max-width: 700px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+            max-height: 250px;
+        }
+        .recent-list {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border);
+        }
+        .list-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: var(--bg);
+            color: var(--text);
+            padding: 12px 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-bottom: 2px solid var(--border);
+        }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .badge {
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .badge-success {
+            background: #10b981;
+            color: white;
+        }
+        .badge-warning {
+            background: #f59e0b;
+            color: white;
+        }
+        .badge-info {
+            background: var(--primary);
+            color: white;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+        .no-data {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-light);
+            font-size: 1rem;
+        }
+        .footer-note {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body data-theme="light">
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-chart-line"></i>
+            <h1>تقاريري</h1>
+        </div>
+        <div class="nav-links">
+            <a href="index.html" class="nav-link"><i class="fas fa-home"></i> الرئيسية</a>
+            <a href="javascript:logoutUser()" class="nav-link"><i class="fas fa-sign-out-alt"></i> خروج</a>
+        </div>
+    </div>
+
+    <!-- إحصائيات سريعة -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+            <div class="stat-value" id="totalLessons">0</div>
+            <div class="stat-label">عدد الدروس المقروءة</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-tachometer-alt"></i></div>
+            <div class="stat-value" id="avgSpeed">0</div>
+            <div class="stat-label">متوسط السرعة (كلمة/دقيقة)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-percent"></i></div>
+            <div class="stat-value" id="avgScore">0%</div>
+            <div class="stat-label">متوسط درجة الفهم</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-value" id="totalTime">0</div>
+            <div class="stat-label">إجمالي وقت القراءة (دقائق)</div>
+        </div>
+    </div>
+
+    <!-- الرسوم البيانية -->
+    <div class="charts-row">
+        <div class="chart-card">
+            <div class="chart-title"><i class="fas fa-chart-bar"></i> تطور سرعة القراءة</div>
+            <canvas id="speedChart"></canvas>
+        </div>
+        <div class="chart-card">
+            <div class="chart-title"><i class="fas fa-chart-pie"></i> توزيع درجات الفهم</div>
+            <canvas id="scorePieChart"></canvas>
+        </div>
+    </div>
+
+    <!-- آخر الجلسات -->
+    <div class="recent-list">
+        <div class="list-title"><i class="fas fa-history"></i> آخر 10 جلسات قراءة</div>
+        <div class="table-responsive">
+            <table id="recentSessionsTable">
+                <thead>
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>النص</th>
+                        <th>السرعة</th>
+                        <th>الأخطاء</th>
+                        <th>الدرجة</th>
+                        <th>المدة (ث)</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionsBody">
+                    <tr><td colspan="6" class="loading">جاري تحميل البيانات...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer-note">
+        <i class="fas fa-chart-simple"></i> إحصائيات مبنية على أدائك في المنصة
+    </div>
+</div>
+
+<script src="database.js"></script>
+<script>
+    (async function() {
+        // التحقق من تسجيل الدخول
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (!currentUser) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // استعادة الثيم
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+
+        // عناصر DOM
+        const totalLessonsEl = document.getElementById('totalLessons');
+        const avgSpeedEl = document.getElementById('avgSpeed');
+        const avgScoreEl = document.getElementById('avgScore');
+        const totalTimeEl = document.getElementById('totalTime');
+        const sessionsBody = document.getElementById('sessionsBody');
+
+        // جلب البيانات من IndexedDB
+        let sessions = [];
+        let quizzes = [];
+
+        try {
+            // جلب جلسات القراءة للمستخدم الحالي
+            sessions = await getReadingSessions(currentUser.username);
+            // جلب نتائج الاختبارات
+            quizzes = await getQuizResults(currentUser.username);
+        } catch (error) {
+            console.error('خطأ في جلب البيانات:', error);
+            sessionsBody.innerHTML = `<tr><td colspan="6" style="color:var(--danger);">فشل تحميل البيانات</td></tr>`;
+        }
+
+        // إذا لا توجد بيانات
+        if (sessions.length === 0 && quizzes.length === 0) {
+            sessionsBody.innerHTML = `<tr><td colspan="6" class="no-data">لا توجد جلسات قراءة بعد</td></tr>`;
+        }
+
+        // حساب الإحصائيات العامة
+        const totalSessions = sessions.length;
+        const totalWordsRead = sessions.reduce((sum, s) => sum + (s.wordsRead || 0), 0);
+        const totalReadingTime = sessions.reduce((sum, s) => sum + (s.duration || 0), 0); // بالثواني
+        const avgSpeedCalc = totalSessions > 0 ? Math.round(sessions.reduce((sum, s) => sum + (s.speed || 0), 0) / totalSessions) : 0;
+        
+        // متوسط درجة الفهم من quizzes
+        let avgScoreCalc = 0;
+        if (quizzes.length > 0) {
+            const totalScore = quizzes.reduce((sum, q) => sum + (q.score || 0), 0);
+            avgScoreCalc = Math.round(totalScore / quizzes.length);
+        }
+
+        // عرض الإحصائيات
+        totalLessonsEl.textContent = totalSessions;
+        avgSpeedEl.textContent = avgSpeedCalc;
+        avgScoreEl.textContent = avgScoreCalc + '%';
+        totalTimeEl.textContent = Math.round(totalReadingTime / 60); // تحويل إلى دقائق
+
+        // رسم بياني لتطور السرعة (آخر 10 جلسات مرتبة زمنياً)
+        const sortedSessions = [...sessions].sort((a, b) => new Date(a.date) - new Date(b.date)).slice(-10);
+        const speedData = sortedSessions.map(s => s.speed || 0);
+        const sessionLabels = sortedSessions.map((s, i) => `جلسة ${i+1}`);
+
+        const ctxSpeed = document.getElementById('speedChart').getContext('2d');
+        new Chart(ctxSpeed, {
+            type: 'line',
+            data: {
+                labels: sessionLabels,
+                datasets: [{
+                    label: 'السرعة (كلمة/دقيقة)',
+                    data: speedData,
+                    borderColor: '#4361ee',
+                    backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                    tension: 0.3,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        // رسم بياني دائري لتوزيع الدرجات (ممتاز، جيد، مقبول، ضعيف)
+        let excellent = 0, good = 0, acceptable = 0, poor = 0;
+        quizzes.forEach(q => {
+            const score = q.score || 0;
+            if (score >= 85) excellent++;
+            else if (score >= 70) good++;
+            else if ( score >= 50) acceptable++;
+            else poor++;
+        });
+
+        const ctxPie = document.getElementById('scorePieChart').getContext('2d');
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['ممتاز (85+)', 'جيد (70-84)', 'مقبول (50-69)', 'ضعيف (<50)'],
+                datasets: [{
+                    data: [excellent, good, acceptable, poor],
+                    backgroundColor: ['#10b981', '#4361ee', '#f59e0b', '#ef4444'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        // عرض آخر 10 جلسات في الجدول
+        const recentSessions = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
+        if (recentSessions.length > 0) {
+            sessionsBody.innerHTML = recentSessions.map(s => {
+                const date = new Date(s.date).toLocaleDateString('ar-EG');
+                const quiz = quizzes.find(q => q.lessonId === s.lessonId && new Date(q.date) > new Date(s.date)); // ربما نأخذ أحدث اختبار بعد الجلسة
+                const score = quiz ? quiz.score : '—';
+                return `
+                <tr>
+                    <td>${date}</td>
+                    <td>${escapeHtml(s.lessonTitle || '—')}</td>
+                    <td>${s.speed || '—'}</td>
+                    <td>${s.errors || 0}</td>
+                    <td>${score !== '—' ? score + '%' : '—'}</td>
+                    <td>${s.duration || '—'}</td>
+                </tr>
+            `}).join('');
+        } else {
+            sessionsBody.innerHTML = `<tr><td colspan="6" class="no-data">لا توجد جلسات بعد</td></tr>`;
+        }
+    })();
+
+    // دوال مساعدة لجلب البيانات من IndexedDB (يجب إضافتها في database.js ولكننا سنضيفها هنا مؤقتاً)
+    // ملاحظة: هذه الدوال يجب أن تكون موجودة في database.js، إذا لم تكن موجودة سنضيفها هنا.
+    // سنقوم بتعريفها محلياً إذا لم تكن معرفة مسبقاً.
+
+    async function getReadingSessions(username) {
+        return new Promise((resolve, reject) => {
+            if (!db) return reject('قاعدة البيانات غير جاهزة');
+            const transaction = db.transaction(['reading_sessions'], 'readonly');
+            const store = transaction.objectStore('reading_sessions');
+            const index = store.index('username');
+            const request = index.getAll(username);
+            request.onsuccess = () => resolve(request.result || []);
+            request.onerror = () => reject('فشل في جلب الجلسات');
+        });
+    }
+
+    async function getQuizResults(username) {
+        return new Promise((resolve, reject) => {
+            if (!db) return reject('قاعدة البيانات غير جاهزة');
+            const transaction = db.transaction(['quiz_results'], 'readonly');
+            const store = transaction.objectStore('quiz_results');
+            const index = store.index('username');
+            const request = index.getAll(username);
+            request.onsuccess = () => resolve(request.result || []);
+            request.onerror = () => reject('فشل في جلب نتائج الاختبارات');
+        });
+    }
+
+    function escapeHtml(unsafe) {
+        if (typeof unsafe !== 'string') return unsafe;
+        return unsafe.replace(/[&<>"]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            if (m === '"') return '&quot;';
+            return m;
+        });
+    }
+</script>
+</body>
+</html>
