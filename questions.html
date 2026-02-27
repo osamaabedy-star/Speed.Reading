@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>أسئلة الفهم · تقييم القراءة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        /* === تصميم مضغوط وواضح === */
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI','Cairo',Tahoma,sans-serif; }
+
+        :root {
+            --bg: #f4f7fb;
+            --card-bg: #ffffff;
+            --text: #1e2b3c;
+            --text-light: #64748b;
+            --primary: #2563eb;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --border: #e9eef2;
+            --shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text: #e9eef2;
+            --text-light: #a0aec0;
+            --border: #2d3748;
+            --shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        [data-theme="comfort"] {
+            --bg: #e6d5b8;
+            --card-bg: #faf0e6;
+            --text: #5e4b3c;
+            --text-light: #7d6b5a;
+            --border: #d4b89c;
+            --shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding: 15px;
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            font-size: 14px;
+        }
+
+        .container { max-width: 950px; margin: 0 auto; }
+
+        .header {
+            background: var(--card-bg);
+            border-radius: 40px;
+            padding: 10px 20px;
+            margin-bottom: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary);
+        }
+
+        .lesson-name {
+            background: var(--bg);
+            padding: 5px 15px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-home {
+            background: transparent;
+            color: var(--text);
+            border: 2px solid var(--border);
+            padding: 6px 14px;
+            border-radius: 40px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .btn-home:hover { background: var(--border); }
+
+        .order-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .order-item-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--card-bg);
+            border-radius: 50px;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            cursor: grab;
+            transition: background 0.2s, transform 0.1s;
+            background-color: color-mix(in srgb, var(--bg) 70%, black 5%);
+        }
+        .order-item-row.dragging {
+            opacity: 0.7;
+            cursor: grabbing;
+            transform: scale(1.01);
+        }
+        .order-item-row.drag-over {
+            border-color: var(--primary);
+            border-width: 2px;
+        }
+
+        .order-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .order-item-text {
+            flex: 1;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .drag-handle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+            cursor: grab;
+            padding: 0 5px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .option {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 40px;
+            padding: 10px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .option:hover { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--bg)); }
+        .option.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .option.correct {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+        }
+        .option.wrong {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .question-box {
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 18px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 15px;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .questions-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .question-counter {
+            background: var(--primary);
+            color: white;
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .nav-btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.2s;
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        .nav-btn:hover:not(:disabled) { background: var(--primary); color: white; }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .submit-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0 5px;
+            transition: 0.2s;
+        }
+        .submit-btn:hover:not(:disabled) { transform: scale(1.01); box-shadow: 0 5px 15px rgba(16,185,129,0.3); }
+        .submit-btn:disabled { background: var(--border); cursor: not-allowed; opacity: 0.6; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+        .modal.show { display: flex; }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 30px;
+            max-width: 550px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            left: 15px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+        .close-modal:hover { color: var(--danger); }
+
+        .modal-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 25px;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-around;
+            background: var(--bg);
+            border-radius: 40px;
+            padding: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .report-stat {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .error-details {
+            text-align: right;
+            margin: 15px 0;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .error-item {
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            border-right: 4px solid var(--danger);
+        }
+
+        .error-question {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+
+        .error-answers {
+            font-size: 0.8rem;
+            display: flex;
+            gap: 12px;
+            color: var(--text-light);
+        }
+
+        .result-emoji { font-size: 2.5rem; }
+        .result-score { font-size: 2rem; font-weight: 700; color: var(--primary); }
+
+        .pie {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: conic-gradient(var(--success) 0deg, var(--border) 0deg);
+            transition: background 0.5s;
+        }
+
+        .legend { font-size: 0.8rem; }
+
+        #readingInfoBar { display: none; }
+        .result-card { display: none; }
+
+        .nav-btn, .submit-btn, .btn-home, .modal-btn {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .nav-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+    </style>
+</head>
+<body data-theme="light">
+<div class="container">
+    <div class="header">
+        <div class="logo">
+            <i class="fas fa-question-circle"></i>
+            <span>اختبر نفسك</span>
+        </div>
+        <div class="lesson-name" id="headerLessonName"></div>
+        <a href="index.html" class="btn-home"><i class="fas fa-home"></i> الرئيسية</a>
+    </div>
+
+    <div id="questionsSection">
+        <div class="questions-header">
+            <h3><i class="fas fa-pencil-alt"></i> أجب عن الأسئلة</h3>
+            <span class="question-counter" id="questionCounter">1 / 0</span>
+        </div>
+        <div id="questionContainer" class="question-box"></div>
+        <div class="navigation-buttons">
+            <button class="nav-btn" id="prevBtn" disabled><i class="fas fa-arrow-right"></i> السابق</button>
+            <button class="nav-btn" id="nextBtn">التالي <i class="fas fa-arrow-left"></i></button>
+        </div>
+        <button class="submit-btn" id="submitBtn" disabled>سلم الإجابات</button>
+    </div>
+
+    <div id="reportModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeModalBtn">&times;</span>
+            <h2>📊 تقرير الأداء</h2>
+            
+            <div class="report-header">
+                <div class="report-stat"><i class="fas fa-tachometer-alt"></i> السرعة: <span id="reportSpeed">0</span> ك/د</div>
+                <div class="report-stat"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i> الأخطاء: <span id="reportErrors">0</span></div>
+                <div class="report-stat"><i class="fas fa-clock"></i> الزمن: <span id="reportDuration">00</span> ث</div>
+            </div>
+            
+            <div class="result-emoji" id="modalResultEmoji">🏆</div>
+            <div class="result-score" id="modalResultScore">0%</div>
+            <div class="result-message" id="modalResultMessage"></div>
+            
+            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin: 10px 0;">
+                <div class="pie" id="modalPieChart"></div>
+                <div class="legend">
+                    <div><span style="background:var(--success); width:12px; height:12px; border-radius:50%; display:inline-block;"></span> <span id="modalCorrectCount">0</span> صحيح</div>
+                    <div><span style="background:var(--border); width:12px; height:12px; border-radius:50%; display:inline-block;"></span> <span id="modalWrongCount">0</span> خطأ</div>
+                </div>
+            </div>
+
+            <div id="errorDetailsContainer" class="error-details"></div>
+
+            <button class="modal-btn" id="modalCloseBtn">إغلاق</button>
+            <a href="index.html" class="btn-home" style="display: inline-block; margin-top: 8px;"><i class="fas fa-book"></i> نص آخر</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const STORAGE_SESSIONS = 'reading_sessions';
+        const sessionData = JSON.parse(sessionStorage.getItem('currentReadingSession'));
+
+        if (!sessionData) {
+            alert('لا توجد بيانات جلسة قراءة، سيتم تحويلك للرئيسية');
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const lessonTitle = sessionData.lessonTitle;
+        const speed = sessionData.speed || 0;
+        const errorsCount = sessionData.errors || 0;
+        const duration = sessionData.duration || 0;
+        const allQuestions = sessionData.questions || [];
+
+        document.getElementById('headerLessonName').textContent = lessonTitle;
+
+        // دالة تحويل الأرقام (اختياري)
+        function toIndianNumbers(num) {
+            const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            return num.toString().replace(/\d/g, (d) => arabicNumbers[d]);
+        }
+
+        // التحقق من صحة السؤال
+        function validateQuestion(q) {
+            if (!q) return false;
+            if (q.type === 'order') {
+                if (!Array.isArray(q.events) || q.events.length === 0) return false;
+                if (!Array.isArray(q.correctOrder)) return false;
+                return q.correctOrder.every(idx => typeof idx === 'number' && idx >= 0 && idx < q.events.length);
+            } else {
+                if (!Array.isArray(q.options) || q.options.length === 0) return false;
+                if (typeof q.correct !== 'number' || q.correct < 0 || q.correct >= q.options.length) return false;
+                return true;
+            }
+        }
+
+        const validQuestions = allQuestions.filter(q => validateQuestion(q));
+        if (validQuestions.length === 0) {
+            document.getElementById('questionsSection').innerHTML = '<div class="no-questions"><i class="fas fa-exclamation-triangle fa-4x"></i><h3>الأسئلة غير صالحة</h3></div>';
+            return;
+        }
+
+        // اختيار الأسئلة دون تكرار
+        function selectQuestions(questionsArray, count = 10) {
+            if (questionsArray.length <= count) {
+                return [...questionsArray];
+            }
+            const shuffled = [...questionsArray];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled.slice(0, count);
+        }
+
+        let questions = selectQuestions(validQuestions, 10);
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(questions.length).fill(null);
+        let quizSubmitted = false;
+        let correctAnswersCount = 0;
+
+        const questionContainer = document.getElementById('questionContainer');
+        const questionCounter = document.getElementById('questionCounter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const reportModal = document.getElementById('reportModal');
+        const modalResultEmoji = document.getElementById('modalResultEmoji');
+        const modalResultScore = document.getElementById('modalResultScore');
+        const modalResultMessage = document.getElementById('modalResultMessage');
+        const modalPieChart = document.getElementById('modalPieChart');
+        const modalCorrectCount = document.getElementById('modalCorrectCount');
+        const modalWrongCount = document.getElementById('modalWrongCount');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const reportSpeed = document.getElementById('reportSpeed');
+        const reportErrors = document.getElementById('reportErrors');
+        const reportDuration = document.getElementById('reportDuration');
+        const errorDetailsContainer = document.getElementById('errorDetailsContainer');
+
+        function updateCounter() {
+            questionCounter.textContent = `${currentQuestionIndex + 1} / ${questions.length}`;
+        }
+
+        let sortableInstance = null;
+
+        function renderQuestion() {
+            const q = questions[currentQuestionIndex];
+            if (!q) return;
+
+            let html = `<div class="question-text">${currentQuestionIndex + 1}. ${escapeHtml(q.text || '')}</div>`;
+
+            if (q.type === 'order') {
+                const events = q.events || [];
+                if (events.length === 0) {
+                    html += `<p>لا توجد أحداث</p>`;
+                } else {
+                    let currentOrder = userAnswers[currentQuestionIndex];
+                    if (!currentOrder) {
+                        currentOrder = [...events];
+                        userAnswers[currentQuestionIndex] = currentOrder;
+                    }
+
+                    html += `<div class="order-container" id="sortable-container">`;
+                    currentOrder.forEach((eventText, idx) => {
+                        html += `
+                            <div class="order-item-row" data-idx="${idx}">
+                                <span class="order-number">${idx + 1}</span>
+                                <span class="order-item-text">${escapeHtml(eventText)}</span>
+                                <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+            } else {
+                const options = q.options || [];
+                if (options.length === 0) {
+                    html += `<p>⚠️ لا توجد خيارات</p>`;
+                } else {
+                    html += `<div class="options-grid">`;
+                    options.forEach((opt, idx) => {
+                        let cls = 'option';
+                        if (userAnswers[currentQuestionIndex] === idx) cls += ' selected';
+                        if (quizSubmitted) {
+                            if (idx === q.correct) cls += ' correct';
+                            else if (userAnswers[currentQuestionIndex] === idx) cls += ' wrong';
+                        }
+                        html += `<div class="${cls}" data-opt-index="${idx}">${escapeHtml(opt)}</div>`;
+                    });
+                    html += `</div>`;
+                }
+            }
+
+            questionContainer.innerHTML = html;
+
+            if (q.type !== 'order') {
+                document.querySelectorAll('.option').forEach(optEl => {
+                    optEl.addEventListener('click', () => {
+                        if (quizSubmitted) return;
+                        const optIdx = parseInt(optEl.dataset.optIndex, 10);
+                        userAnswers[currentQuestionIndex] = optIdx;
+                        renderQuestion();
+                    });
+                });
+            }
+
+            if (q.type === 'order' && !quizSubmitted) {
+                const container = document.getElementById('sortable-container');
+                if (container) {
+                    if (sortableInstance) sortableInstance.destroy();
+                    sortableInstance = new Sortable(container, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        onEnd: (evt) => {
+                            const newOrder = [];
+                            const items = container.querySelectorAll('.order-item-row');
+                            items.forEach(item => {
+                                const textEl = item.querySelector('.order-item-text');
+                                newOrder.push(textEl.textContent);
+                            });
+                            userAnswers[currentQuestionIndex] = newOrder;
+                        }
+                    });
+                }
+            } else if (sortableInstance) {
+                sortableInstance.destroy();
+                sortableInstance = null;
+            }
+
+            prevBtn.disabled = (currentQuestionIndex === 0) || quizSubmitted;
+            nextBtn.disabled = (currentQuestionIndex === questions.length - 1) || quizSubmitted;
+
+            const allAnswered = userAnswers.every(ans => {
+                if (Array.isArray(ans)) return ans.length > 0;
+                return ans !== null;
+            });
+            submitBtn.disabled = !allAnswered || quizSubmitted;
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentQuestionIndex > 0 && !quizSubmitted) {
+                currentQuestionIndex--;
+                renderQuestion();
+                updateCounter();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentQuestionIndex < questions.length - 1 && !quizSubmitted) {
+                currentQuestionIndex++;
+                renderQuestion();
+                updateCounter();
+            }
+        });
+
+        function submitAnswers() {
+            if (quizSubmitted) return;
+            if (!confirm('هل أنت متأكد من تسليم الإجابات؟')) return;
+
+            correctAnswersCount = 0;
+            const wrongDetails = [];
+
+            userAnswers.forEach((ans, idx) => {
+                const q = questions[idx];
+                if (!q) return;
+                let isCorrect = false;
+                if (q.type === 'order') {
+                    if (ans && Array.isArray(ans)) {
+                        const correctOrderTexts = q.correctOrder.map(i => q.events[i]);
+                        if (JSON.stringify(ans) === JSON.stringify(correctOrderTexts)) {
+                            isCorrect = true;
+                        }
+                    }
+                } else {
+                    if (ans === q.correct) isCorrect = true;
+                }
+                if (isCorrect) correctAnswersCount++;
+                else {
+                    let userAnswerText = '';
+                    if (q.type === 'order') {
+                        userAnswerText = (ans && Array.isArray(ans)) ? ans.join(' → ') : 'لم يرتب';
+                    } else {
+                        userAnswerText = (ans !== null && q.options[ans]) ? q.options[ans] : 'لم يجب';
+                    }
+                    let correctAnswerText = (q.type === 'order') ? q.correctOrder.map(i => q.events[i]).join(' → ') : q.options[q.correct];
+                    wrongDetails.push({
+                        question: q.text || `سؤال ${idx+1}`,
+                        userAnswer: userAnswerText,
+                        correctAnswer: correctAnswerText
+                    });
+                }
+            });
+
+            const total = questions.length;
+            const score = Math.round((correctAnswersCount / total) * 100);
+
+            modalResultScore.textContent = `${score}%`;
+            modalResultEmoji.textContent = score >= 85 ? '🏆' : (score >= 65 ? '👍' : '💪');
+            modalResultMessage.textContent = `أجبت صحيحاً على ${correctAnswersCount} من ${total}`;
+            
+            const wrongCount = total - correctAnswersCount;
+            const correctDeg = (correctAnswersCount / total) * 360;
+            modalPieChart.style.background = `conic-gradient(var(--success) ${correctDeg}deg, var(--border) ${correctDeg}deg)`;
+            modalCorrectCount.textContent = correctAnswersCount;
+            modalWrongCount.textContent = wrongCount;
+
+            reportSpeed.textContent = toIndianNumbers(speed);
+            reportErrors.textContent = toIndianNumbers(errorsCount);
+            reportDuration.textContent = toIndianNumbers(duration);
+
+            if (wrongDetails.length > 0) {
+                let html = '<h4>❌ تفاصيل الأخطاء</h4>';
+                wrongDetails.forEach(err => {
+                    html += `
+                        <div class="error-item">
+                            <div class="error-question">${escapeHtml(err.question)}</div>
+                            <div class="error-answers">
+                                <span style="color:var(--danger);">إجابتك: ${escapeHtml(err.userAnswer)}</span>
+                                <span style="color:var(--success);">الصحيح: ${escapeHtml(err.correctAnswer)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                errorDetailsContainer.innerHTML = html;
+            } else {
+                errorDetailsContainer.innerHTML = '<p style="color:var(--success);">🎉 لا توجد أخطاء! كل الإجابات صحيحة.</p>';
+            }
+
+            reportModal.classList.add('show');
+
+            quizSubmitted = true;
+            renderQuestion();
+            submitBtn.disabled = true;
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+
+            saveFinalSession({ correct: correctAnswersCount, total, score });
+        }
+
+        submitBtn.addEventListener('click', submitAnswers);
+
+        function closeModal() {
+            reportModal.classList.remove('show');
+        }
+        closeModalBtn.addEventListener('click', closeModal);
+        modalCloseBtn.addEventListener('click', closeModal);
+        window.addEventListener('click', (e) => {
+            if (e.target === reportModal) closeModal();
+        });
+
+        function saveFinalSession(quizResult) {
+            const sessions = JSON.parse(localStorage.getItem(STORAGE_SESSIONS)) || [];
+            const newSession = {
+                id: Date.now().toString(),
+                lessonId: sessionData.lessonId,
+                lessonTitle: sessionData.lessonTitle,
+                grade: sessionData.grade,
+                semester: sessionData.semester,
+                startTime: sessionData.startTime,
+                endTime: sessionData.endTime,
+                duration: sessionData.duration,
+                speed: sessionData.speed,
+                errors: sessionData.errors,
+                status: 'completed',
+                questionsAnswered: quizResult.total,
+                questionsCorrect: quizResult.correct,
+                comprehensionLevel: quizResult.score >= 85 ? 'متقدم' : (quizResult.score >= 65 ? 'متوسط' : 'مبتدئ')
+            };
+            sessions.push(newSession);
+            localStorage.setItem(STORAGE_SESSIONS, JSON.stringify(sessions));
+            sessionStorage.removeItem('currentReadingSession');
+        }
+
+        function escapeHtml(unsafe) {
+            if (typeof unsafe !== 'string') return '';
+            return unsafe.replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        if (sessionData.theme) {
+            document.body.setAttribute('data-theme', sessionData.theme);
+        } else {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.body.setAttribute('data-theme', savedTheme);
+        }
+
+        window.addEventListener('beforeunload', (e) => {
+            if (!quizSubmitted && userAnswers.some(ans => ans !== null)) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        renderQuestion();
+        updateCounter();
+    })();
+</script>
+</body>
+</html>

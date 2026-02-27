@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - منصة القراءة السريعة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        :root {
+            --primary: #4361ee;
+            --accent: #f72585;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --border: #334155;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            transition: background 0.3s, color 0.3s;
+        }
+        .container {
+            background: var(--card-bg);
+            border-radius: 32px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            position: relative;
+        }
+        h1 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 24px;
+            font-size: 1.8rem;
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary);
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary), #3f37c9);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+        button[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--primary);
+        }
+        .message {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+            padding: 10px;
+            border-radius: 30px;
+            display: none;
+        }
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            display: block;
+        }
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border: 1px solid var(--success);
+            display: block;
+        }
+        .message.warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+            display: block;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text);
+        }
+        small {
+            display: block;
+            margin-top: 5px;
+            color: var(--text-light);
+            font-size: 0.8rem;
+        }
+        .phone-note {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="theme-toggle" id="themeToggle" title="تغيير الثيم">
+        <i class="fas fa-moon"></i>
+    </div>
+
+    <div class="container">
+        <h1>📚 منصة القراءة السريعة</h1>
+        
+        <div class="tab-buttons">
+            <button class="tab-btn active" id="showLogin">تسجيل الدخول</button>
+            <button class="tab-btn" id="showRegister">تسجيل جديد</button>
+        </div>
+
+        <!-- نموذج تسجيل الدخول -->
+        <div id="loginForm">
+            <div class="form-group">
+                <input type="text" id="loginUsername" placeholder="اسم المستخدم" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <input type="password" id="loginPassword" placeholder="كلمة المرور">
+            </div>
+            <button type="submit" id="loginBtn">دخول</button>
+            <div class="message" id="loginMessage"></div>
+        </div>
+
+        <!-- نموذج تسجيل جديد -->
+        <div id="registerForm" style="display: none;">
+            <div class="form-group">
+                <input type="text" id="regFullName" placeholder="الاسم الكامل (اختياري)" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <input type="text" id="regUsername" placeholder="اسم المستخدم *" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <input type="password" id="regPassword" placeholder="كلمة المرور *" required>
+                <small>يجب أن تكون 4 أحرف على الأقل</small>
+            </div>
+            <div class="form-group">
+                <input type="tel" id="regPhone" placeholder="رقم الجوال *" required pattern="[0-9]{10,}" title="أدخل رقم جوال صحيح (10 أرقام أو أكثر)">
+                <div class="phone-note">مثال: 0555123456</div>
+            </div>
+            <div class="form-group">
+                <select id="regGrade" required>
+                    <option value="">اختر الصف *</option>
+                    <option value="1">الصف الأول الابتدائي</option>
+                    <option value="2">الصف الثاني الابتدائي</option>
+                    <option value="3">الصف الثالث الابتدائي</option>
+                    <option value="4">الصف الرابع الابتدائي</option>
+                    <option value="5">الصف الخامس الابتدائي</option>
+                    <option value="6">الصف السادس الابتدائي</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="regSemester" required>
+                    <option value="">اختر الفصل *</option>
+                    <option value="1">الفصل الدراسي الأول</option>
+                    <option value="2">الفصل الدراسي الثاني</option>
+                </select>
+            </div>
+            <button type="submit" id="registerBtn">تسجيل</button>
+            <div class="message" id="registerMessage"></div>
+        </div>
+    </div>
+
+    <script src="database.js"></script>
+    <script>
+        // تبديل الثيم
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            themeToggle.innerHTML = newTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+        });
+
+        // استعادة الثيم المحفوظ
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        themeToggle.innerHTML = savedTheme === 'light' ? '<i class="fas fa-moon"></i>' : '<i class="fas fa-sun"></i>';
+
+        // عناصر التبويب
+        const showLogin = document.getElementById('showLogin');
+        const showRegister = document.getElementById('showRegister');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+
+        showLogin.addEventListener('click', () => {
+            showLogin.classList.add('active');
+            showRegister.classList.remove('active');
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            clearMessages();
+        });
+
+        showRegister.addEventListener('click', () => {
+            showRegister.classList.add('active');
+            showLogin.classList.remove('active');
+            registerForm.style.display = 'block';
+            loginForm.style.display = 'none';
+            clearMessages();
+        });
+
+        function clearMessages() {
+            document.getElementById('loginMessage').className = 'message';
+            document.getElementById('loginMessage').style.display = 'none';
+            document.getElementById('registerMessage').className = 'message';
+            document.getElementById('registerMessage').style.display = 'none';
+        }
+
+        function showMessage(elementId, text, type = 'error') {
+            const el = document.getElementById(elementId);
+            el.textContent = text;
+            el.className = `message ${type}`;
+            el.style.display = 'block';
+        }
+
+        // تسجيل الدخول
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            if (!username || !password) {
+                showMessage('loginMessage', 'الرجاء إدخال اسم المستخدم وكلمة المرور', 'error');
+                return;
+            }
+
+            try {
+                await loginUser(username, password);
+                // تم تسجيل الدخول بنجاح، الانتقال للصفحة الرئيسية
+                window.location.href = 'index.html';
+            } catch (error) {
+                showMessage('loginMessage', error, 'error');
+            }
+        });
+
+        // تسجيل جديد
+        document.getElementById('registerBtn').addEventListener('click', async () => {
+            const fullName = document.getElementById('regFullName').value.trim();
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const phone = document.getElementById('regPhone').value.trim();
+            const grade = document.getElementById('regGrade').value;
+            const semester = document.getElementById('regSemester').value;
+
+            // التحقق من المدخلات
+            if (!username || !password || !phone || !grade || !semester) {
+                showMessage('registerMessage', 'جميع الحقول المطلوبة يجب ملؤها (*)', 'error');
+                return;
+            }
+            if (username.length < 3) {
+                showMessage('registerMessage', 'اسم المستخدم يجب أن يكون 3 أحرف على الأقل', 'error');
+                return;
+            }
+            if (password.length < 4) {
+                showMessage('registerMessage', 'كلمة المرور يجب أن تكون 4 أحرف على الأقل', 'error');
+                return;
+            }
+            // التحقق من رقم الجوال (أرقام فقط، 10 أرقام أو أكثر)
+            if (!/^\d{10,}$/.test(phone)) {
+                showMessage('registerMessage', 'رقم الجوال غير صحيح. يجب أن يكون 10 أرقام على الأقل', 'error');
+                return;
+            }
+
+            try {
+                await registerUser(username, password, fullName, phone, grade, semester);
+                // عرض رسالة نجاح مع إعلام المستخدم بأن الحساب يحتاج موافقة
+                showMessage('registerMessage', 'تم التسجيل بنجاح! حسابك قيد المراجعة من قبل الإدارة، سيتم تفعيله قريباً', 'success');
+                
+                // تنظيف الحقول (اختياري)
+                document.getElementById('regFullName').value = '';
+                document.getElementById('regUsername').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regPhone').value = '';
+                document.getElementById('regGrade').value = '';
+                document.getElementById('regSemester').value = '';
+
+                // بعد 3 ثوانٍ نعود لشاشة تسجيل الدخول
+                setTimeout(() => {
+                    showLogin.click();
+                }, 3000);
+            } catch (error) {
+                showMessage('registerMessage', error, 'error');
+            }
+        });
+
+        // عند الضغط على Enter في حقول الإدخال
+        document.getElementById('loginUsername').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+        document.getElementById('loginPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('loginBtn').click();
+        });
+        document.getElementById('regFullName').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('registerBtn').click();
+        });
+        document.getElementById('regUsername').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('registerBtn').click();
+        });
+        document.getElementById('regPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('registerBtn').click();
+        });
+        document.getElementById('regPhone').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('registerBtn').click();
+        });
+    </script>
+</body>
+</html>

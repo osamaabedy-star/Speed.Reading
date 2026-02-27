@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>منصة القراءة السريعة - مدارس رياض الإبداع</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amiri&family=Almarai:wght@400;700&family=Readex+Pro:wght@400;700&family=Katibeh&family=Lalezar&family=Markazi+Text:wght@400;700&family=Scheherazade+New:wght@400;700&family=Harmattan:wght@400;700&family=El+Messiri:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* نفس الأنماط السابقة - يمكنك الاحتفاظ بها كما هي */
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --primary-dark: #3f37c9;
+            --accent: #f72585;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-light: #475569;
+            --border: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            --radius-lg: 32px;
+            --radius-md: 24px;
+            --radius-sm: 16px;
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f1f5f9;
+            --text-light: #94a3b8;
+            --border: #334155;
+        }
+        [data-theme="comfort"] {
+            --bg: #f5e9da;
+            --card-bg: #fff7ed;
+            --text: #5e4b3c;
+            --text-light: #8b7a6b;
+            --border: #d9c9b4;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+            transition: var(--transition);
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        /* الهيدر */
+        .header {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .school-logo {
+            height: 48px;
+            width: auto;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-sm);
+        }
+        .header h1 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.3px;
+            line-height: 1.3;
+        }
+        .header p {
+            color: var(--text-light);
+            font-size: 0.7rem;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--bg);
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .user-details {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .user-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.85rem;
+            color: var(--text);
+        }
+        .user-detail-item i {
+            color: var(--primary);
+            font-size: 0.9rem;
+        }
+        .user-info button {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .theme-buttons {
+            display: flex;
+            gap: 6px;
+        }
+        .theme-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .theme-btn:hover {
+            transform: scale(1.1);
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .help-header-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+        }
+        .help-header-btn:hover {
+            transform: scale(1.1);
+            background: var(--primary-dark);
+        }
+        /* باقي الأنماط (نفس السابق) - سأختصرها هنا للقراءة، لكن يجب نسخها كاملة من ملفك الأصلي */
+        .main-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        @media (min-width: 768px) { body { padding: 24px; } .header { padding: 16px 28px; } .header h1 { font-size: 1.6rem; } .header p { font-size: 0.85rem; } .school-logo { height: 64px; } .theme-btn, .help-header-btn { width: 44px; height: 44px; font-size: 1.2rem; } .main-grid { grid-template-columns: 0.8fr 1.5fr; } }
+        .settings-card { background: var(--card-bg); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-md); border: 1px solid var(--border); backdrop-filter: blur(10px); position: relative; top: 0; }
+        @media (min-width: 768px) { .settings-card { position: sticky; top: 20px; } }
+        .section-title { font-size: 1rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; color: var(--primary); border-bottom: 2px solid var(--border); padding-bottom: 8px; }
+        .section-title i { font-size: 1.1rem; }
+        .font-scroll-bar { display: flex; gap: 6px; overflow-x: auto; padding: 2px 0 10px; margin-bottom: 12px; scrollbar-width: thin; scrollbar-color: var(--primary) var(--border); -webkit-overflow-scrolling: touch; }
+        .font-scroll-bar::-webkit-scrollbar { height: 4px; }
+        .font-scroll-bar::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
+        .font-scroll-bar::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .font-mini-btn { white-space: nowrap; padding: 6px 12px; border-radius: 30px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text); font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-sm); flex-shrink: 0; }
+        .font-mini-btn.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.02); }
+        .size-controls { display: flex; align-items: center; gap: 6px; background: var(--bg); padding: 4px 8px; border-radius: 30px; border: 1px solid var(--border); margin-bottom: 14px; width: fit-content; }
+        .size-btn { width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--card-bg); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; transition: var(--transition); box-shadow: var(--shadow-sm); }
+        .size-btn:hover { background: var(--primary); color: white; }
+        #fontSizeValue { min-width: 32px; text-align: center; font-weight: 600; font-size: 0.85rem; }
+        .preview-box { background: var(--bg); border-radius: var(--radius-md); padding: 12px; border: 1px solid var(--border); text-align: center; margin: 16px 0; }
+        .preview-box p { color: var(--text-light); font-size: 0.75rem; margin-bottom: 6px; }
+        .preview-text { font-size: 22px; line-height: 1.5; color: var(--primary); font-weight: 600; transition: font-family 0.2s, font-size 0.2s; word-break: break-word; }
+        .mode-cards { display: flex; gap: 8px; margin-bottom: 18px; }
+        .mode-card { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 4px; text-align: center; cursor: pointer; transition: var(--transition); }
+        .mode-card i { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; }
+        .mode-card span { display: block; font-weight: 600; font-size: 0.7rem; }
+        @media (min-width: 480px) { .mode-card span { font-size: 0.75rem; } }
+        .mode-card.active { border: 2px solid var(--primary); background: color-mix(in srgb, var(--primary) 8%, var(--bg)); transform: translateY(-2px); }
+        .speed-section { margin-bottom: 18px; }
+        .speed-label { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .speed-label span { font-size: 0.8rem; font-weight: 600; color: var(--text-light); }
+        .speed-value { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+        input[type=range] { width: 100%; height: 5px; background: var(--border); border-radius: 10px; -webkit-appearance: none; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--primary); cursor: pointer; box-shadow: var(--shadow-sm); transition: var(--transition); }
+        input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .filter-section { margin-bottom: 18px; }
+        .filter-title { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+        .filter-title i { color: var(--primary); font-size: 0.9rem; }
+        .semester-buttons { display: flex; gap: 12px; }
+        .semester-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 10px; border-radius: 50px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-sm); }
+        .semester-btn i { font-size: 0.9rem; color: var(--primary); }
+        .semester-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .semester-btn.active i { color: white; }
+        .grade-section { display: none; }
+        .grade-section.show { display: block; }
+        .grade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .grade-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 6px 2px; border-radius: 16px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: var(--transition); box-shadow: var(--shadow-sm); }
+        .grade-btn .grade-number { font-size: 1.2rem; font-weight: 700; color: var(--primary); line-height: 1; }
+        .grade-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .grade-btn.active .grade-number { color: white; }
+        .lessons-column { background: var(--card-bg); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-md); border: 1px solid var(--border); display: flex; flex-direction: column; height: fit-content; }
+        .lessons-header { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+        @media (min-width: 480px) { .lessons-header { flex-direction: row; justify-content: space-between; align-items: center; } }
+        .lessons-header h3 { font-size: 1.1rem; font-weight: 700; color: var(--primary); }
+        .search-box { display: flex; align-items: center; gap: 6px; background: var(--bg); padding: 6px 12px; border-radius: 40px; border: 1px solid var(--border); width: 100%; }
+        @media (min-width: 480px) { .search-box { width: auto; } }
+        .search-box i { color: var(--text-light); font-size: 0.9rem; }
+        .search-box input { border: none; background: transparent; color: var(--text); outline: none; width: 100%; font-size: 0.85rem; }
+        .search-box input::placeholder { color: var(--text-light); }
+        .lessons-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; max-height: 400px; overflow-y: auto; padding: 4px; scrollbar-width: thin; }
+        .lessons-grid::-webkit-scrollbar { width: 4px; }
+        .lessons-grid::-webkit-scrollbar-track { background: var(--border); border-radius: 10px; }
+        .lessons-grid::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+        .lesson-item { background: var(--bg); padding: 10px 4px; border-radius: var(--radius-sm); border: 1px solid var(--border); cursor: pointer; transition: var(--transition); text-align: center; position: relative; box-shadow: var(--shadow-sm); }
+        .lesson-item:hover { transform: translateY(-3px); border-color: var(--primary); box-shadow: var(--shadow-md); }
+        .lesson-item.selected { border: 2px solid var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--bg)); }
+        .lesson-item i { font-size: 1.5rem; color: var(--primary); margin-bottom: 4px; opacity: 0.9; }
+        .word-count-badge { position: absolute; top: 3px; left: 3px; background: var(--primary); color: white; padding: 2px 5px; border-radius: 40px; font-size: 0.55rem; font-weight: 600; }
+        .lesson-title { font-weight: 700; font-size: 0.7rem; color: var(--text); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        @media (min-width: 768px) { .lesson-item i { font-size: 1.8rem; } .lesson-title { font-size: 0.8rem; } .word-count-badge { font-size: 0.6rem; } }
+        .start-btn-container { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border); }
+        .btn-launch { width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; border: none; border-radius: 60px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: var(--transition); box-shadow: 0 10px 20px -5px var(--primary-dark); display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-launch:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 15px 25px -5px var(--primary-dark); }
+        .btn-launch:disabled { background: var(--border); color: var(--text-light); box-shadow: none; cursor: not-allowed; opacity: 0.7; }
+        .btn-launch i { font-size: 1.1rem; }
+        .admin-link { text-align: center; margin-top: 16px; font-size: 0.7rem; }
+        .admin-link a { color: var(--text-light); text-decoration: none; transition: var(--transition); }
+        .admin-link a:hover { color: var(--primary); }
+        .loading-spinner { grid-column: 1/-1; text-align: center; padding: 40px; color: var(--primary); font-size: 1.2rem; }
+        .help-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: var(--transition); padding: 20px; }
+        .help-modal.show { opacity: 1; visibility: visible; }
+        .help-content { background: var(--card-bg); border-radius: var(--radius-lg); padding: 24px; max-width: 500px; width: 100%; box-shadow: var(--shadow-lg); border: 1px solid var(--border); position: relative; max-height: 90vh; overflow-y: auto; }
+        .help-content h2 { color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px; font-size: 1.3rem; }
+        .help-content ul { list-style: none; padding: 0; }
+        .help-content li { margin-bottom: 14px; display: flex; gap: 12px; align-items: flex-start; font-size: 0.9rem; }
+        .help-content li i { color: var(--primary); font-size: 1.1rem; margin-top: 2px; }
+        .help-content p { color: var(--text-light); margin-top: 10px; font-size: 0.85rem; }
+        .close-help { position: absolute; top: 15px; left: 15px; background: transparent; border: none; font-size: 1.2rem; color: var(--text-light); cursor: pointer; transition: var(--transition); }
+        .close-help:hover { color: var(--accent); }
+    </style>
+</head>
+<body data-theme="light">
+<div class="container">
+    <!-- الهيدر مع معلومات المستخدم -->
+    <div class="header">
+        <div class="logo-container">
+            <img src="https://www.wzufa.com/wp-content/uploads/2022/07/Riyadh-Al-Ebdaa-Schools.png" alt="شعار مدارس الرياض الإبداع" class="school-logo">
+            <div>
+                <h1>منصة القراءة السريعة</h1>
+                <p>مدارس رياض الإبداع الأهلية</p>
+            </div>
+        </div>
+        
+        <!-- معلومات المستخدم -->
+        <div class="user-info" id="userInfo">
+            <div class="user-details" id="userDetails">
+                <!-- سيتم تعبئتها عبر JavaScript -->
+            </div>
+            <button id="logoutBtn" onclick="logoutUser()"><i class="fas fa-sign-out-alt"></i> خروج</button>
+        </div>
+
+        <div class="header-actions">
+            <div class="theme-buttons">
+                <div class="theme-btn light" onclick="setTheme('light')" title="الوضع النهاري"><i class="fas fa-sun"></i></div>
+                <div class="theme-btn dark" onclick="setTheme('dark')" title="الوضع الليلي"><i class="fas fa-moon"></i></div>
+                <div class="theme-btn comfort" onclick="setTheme('comfort')" title="الوضع المريح"><i class="fas fa-leaf"></i></div>
+            </div>
+            <button class="help-header-btn" id="helpBtn" title="طريقة الاستخدام"><i class="fas fa-question"></i></button>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-grid">
+        <!-- العمود الأيمن: الإعدادات (نفس السابق) -->
+        <div class="settings-card">
+            <h3 class="section-title"><i class="fas fa-sliders-h"></i> الإعدادات</h3>
+            
+            <div class="font-scroll-bar" id="miniFontSelector">
+                <span class="font-mini-btn" data-font="'Amiri', serif" style="font-family: 'Amiri';">أميري</span>
+                <span class="font-mini-btn" data-font="'Cairo', sans-serif" style="font-family: 'Cairo';">كايرو</span>
+                <span class="font-mini-btn" data-font="'Almarai', sans-serif" style="font-family: 'Almarai';">المرائي</span>
+                <span class="font-mini-btn" data-font="'Readex Pro', sans-serif" style="font-family: 'Readex Pro';">ريدكس</span>
+                <span class="font-mini-btn" data-font="'Katibeh', cursive" style="font-family: 'Katibeh';">كايور</span>
+                <span class="font-mini-btn" data-font="'Harmattan', sans-serif" style="font-family: 'Harmattan';">همنان</span>
+                <span class="font-mini-btn" data-font="'El Messiri', sans-serif" style="font-family: 'El Messiri';">مركزي</span>
+                <span class="font-mini-btn" data-font="'Lalezar', cursive" style="font-family: 'Lalezar';">لطيف</span>
+                <span class="font-mini-btn" data-font="'Markazi Text', serif" style="font-family: 'Markazi Text';">ليازار</span>
+                <span class="font-mini-btn" data-font="'Scheherazade New', serif" style="font-family: 'Scheherazade New';">شهزاد</span>
+            </div>
+
+            <div class="size-controls">
+                <button class="size-btn" id="decreaseFontSize"><i class="fas fa-minus"></i></button>
+                <span id="fontSizeValue">٢٨</span>
+                <button class="size-btn" id="increaseFontSize"><i class="fas fa-plus"></i></button>
+            </div>
+
+            <div class="preview-box">
+                <p>معاينة الخط</p>
+                <div class="preview-text" id="fontPreview">أسامة إبراهيم محمدي</div>
+            </div>
+
+            <div class="mode-cards" id="modeSelector">
+                <div class="mode-card" data-mode="rsvp">
+                    <i class="fas fa-bolt"></i>
+                    <span>كلمة بكلمة</span>
+                </div>
+                <div class="mode-card" data-mode="scroll">
+                    <i class="fas fa-scroll"></i>
+                    <span>تمرير انسيابي</span>
+                </div>
+                <div class="mode-card" data-mode="static">
+                    <i class="fas fa-book-open"></i>
+                    <span>نص ثابت</span>
+                </div>
+            </div>
+
+            <div class="speed-section">
+                <div class="speed-label">
+                    <span><i class="fas fa-tachometer-alt"></i> السرعة</span>
+                    <span class="speed-value" id="speedVal">١٥٠</span>
+                </div>
+                <input type="range" id="speedSlider" min="10" max="400" step="10" value="150">
+            </div>
+
+            <div class="filter-section">
+                <div class="filter-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>الفصل الدراسي</span>
+                </div>
+                <div class="semester-buttons" id="semesterSelector">
+                    <div class="semester-btn" data-semester="1">
+                        <i class="fas fa-calendar"></i>
+                        الأول
+                    </div>
+                    <div class="semester-btn" data-semester="2">
+                        <i class="fas fa-calendar-check"></i>
+                        الثاني
+                    </div>
+                </div>
+            </div>
+
+            <div class="filter-section grade-section" id="gradeSection">
+                <div class="filter-title">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>اختر الصف</span>
+                </div>
+                <div class="grade-grid" id="gradeSelector">
+                    <div class="grade-btn" data-grade="1">
+                        <span class="grade-number">١</span>
+                        <span>الأول</span>
+                    </div>
+                    <div class="grade-btn" data-grade="2">
+                        <span class="grade-number">٢</span>
+                        <span>الثاني</span>
+                    </div>
+                    <div class="grade-btn" data-grade="3">
+                        <span class="grade-number">٣</span>
+                        <span>الثالث</span>
+                    </div>
+                    <div class="grade-btn" data-grade="4">
+                        <span class="grade-number">٤</span>
+                        <span>الرابع</span>
+                    </div>
+                    <div class="grade-btn" data-grade="5">
+                        <span class="grade-number">٥</span>
+                        <span>الخامس</span>
+                    </div>
+                    <div class="grade-btn" data-grade="6">
+                        <span class="grade-number">٦</span>
+                        <span>السادس</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- العمود الأيسر: الدروس وزر البدء -->
+        <div class="lessons-column">
+            <div class="lessons-header">
+                <h3><i class="fas fa-book"></i> النصوص المتاحة</h3>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="بحث..." autocomplete="off">
+                </div>
+            </div>
+
+            <div id="lessonsGrid" class="lessons-grid">
+                <div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> جاري تحميل النصوص...</div>
+            </div>
+
+            <div class="start-btn-container">
+                <button class="btn-launch" id="startBtn" onclick="launchReader()" disabled>
+                    <i class="fas fa-play"></i> ابدأ القراءة
+                </button>
+            </div>
+
+            <div class="admin-link">
+                <a href="admin.html"><i class="fas fa-lock"></i> لوحة الإدارة</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- مودال المساعدة -->
+<div class="help-modal" id="helpModal">
+    <div class="help-content">
+        <button class="close-help" id="closeHelp"><i class="fas fa-times"></i></button>
+        <h2><i class="fas fa-lightbulb"></i> طريقة الاستخدام</h2>
+        <ul>
+            <li><i class="fas fa-paint-brush"></i> <strong>الخط والحجم:</strong> اختر الخط المناسب وحجمه من شريط الخطوط.</li>
+            <li><i class="fas fa-bolt"></i> <strong>وضع القراءة:</strong> حدد الوضع: كلمة بكلمة، تمرير انسيابي، أو نص ثابت.</li>
+            <li><i class="fas fa-tachometer-alt"></i> <strong>السرعة:</strong> اضبط السرعة التي تريدها.</li>
+            <li><i class="fas fa-filter"></i> <strong>تصفية النصوص:</strong> اختر الفصل أولاً، ثم اختر الصف، ثم ابحث عن النص.</li>
+            <li><i class="fas fa-file-alt"></i> <strong>اختيار النص:</strong> انقر على أي نص ليتم تحديده.</li>
+            <li><i class="fas fa-play"></i> <strong>بدء القراءة:</strong> بعد اختيار النص، اضغط على زر "ابدأ القراءة".</li>
+        </ul>
+        <p>استمتع بالقراءة! 📚</p>
+    </div>
+</div>
+
+<script src="database.js"></script>
+<script>
+    // التحقق من تسجيل الدخول
+    (function checkLogin() {
+        const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+        if (!currentUser) {
+            window.location.href = 'login.html';
+            return;
+        }
+        // عرض معلومات المستخدم
+        displayUserInfo(currentUser);
+    })();
+
+    function displayUserInfo(user) {
+        const detailsDiv = document.getElementById('userDetails');
+        // عرض اسم المستخدم، رقم الحساب، ورقم الجوال
+        detailsDiv.innerHTML = `
+            <span class="user-detail-item"><i class="fas fa-user"></i> ${escapeHtml(user.fullName || user.username)}</span>
+            <span class="user-detail-item"><i class="fas fa-id-card"></i> ${escapeHtml(user.accountNumber || '---')}</span>
+            <span class="user-detail-item"><i class="fas fa-phone"></i> ${escapeHtml(user.phone || '---')}</span>
+        `;
+    }
+
+    // دالة تحويل الأرقام الغربية إلى هندية
+    function toIndianNumbers(num) {
+        const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+        return num.toString().replace(/\d/g, (d) => arabicNumbers[d]);
+    }
+
+    // ========== بيانات الدروس ==========
+    let lessonsData = [];
+    let selectedLessonId = null;
+    let currentFont = "'Amiri', serif";
+    let currentMode = 'rsvp';
+    let currentSpeed = 150;
+    let currentSemester = null;
+    let currentGrade = null;
+    let currentFontSize = 28;
+    let searchTerm = '';
+
+    // عناصر DOM
+    const lessonsGrid = document.getElementById('lessonsGrid');
+    const startBtn = document.getElementById('startBtn');
+    const fontPreview = document.getElementById('fontPreview');
+    const searchInput = document.getElementById('searchInput');
+    const speedVal = document.getElementById('speedVal');
+    const fontSizeValue = document.getElementById('fontSizeValue');
+    const gradeSection = document.getElementById('gradeSection');
+
+    // عناصر المساعدة
+    const helpBtn = document.getElementById('helpBtn');
+    const helpModal = document.getElementById('helpModal');
+    const closeHelp = document.getElementById('closeHelp');
+
+    helpBtn.addEventListener('click', () => {
+        helpModal.classList.add('show');
+    });
+
+    closeHelp.addEventListener('click', () => {
+        helpModal.classList.remove('show');
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+            helpModal.classList.remove('show');
+        }
+    });
+
+    // دوال تحويل رقم الصف والفصل إلى النص الكامل
+    function getGradeFullName(gradeNumber) {
+        const gradeNum = parseInt(gradeNumber, 10);
+        const grades = [
+            'الأول الابتدائي',
+            'الثاني الابتدائي',
+            'الثالث الابتدائي',
+            'الرابع الابتدائي',
+            'الخامس الابتدائي',
+            'السادس الابتدائي'
+        ];
+        return grades[gradeNum - 1] || 'غير معروف';
+    }
+
+    function getSemesterFullName(semesterNumber) {
+        return semesterNumber === '1' ? 'الفصل الدراسي الأول' : 'الفصل الدراسي الثاني';
+    }
+
+    // تحديث معاينة الخط
+    function updateFontPreview() {
+        fontPreview.style.fontFamily = currentFont;
+        fontPreview.style.fontSize = currentFontSize + 'px';
+        fontSizeValue.textContent = toIndianNumbers(currentFontSize);
+    }
+
+    // تحديث عرض السرعة
+    function updateSpeedDisplay() {
+        speedVal.textContent = toIndianNumbers(currentSpeed);
+    }
+
+    // ========== تحميل الدروس وحفظها في localStorage (باستخدام Promise.allSettled) ==========
+    async function loadAllLessons() {
+        const files = [
+            'primary_first.json',
+            'primary_second.json',
+            'upper_first.json',
+            'upper_second.json'
+        ];
+
+        try {
+            const promises = files.map(file => fetch(file).then(res => {
+                if (!res.ok) throw new Error(`فشل تحميل ${file}`);
+                return res.json();
+            }));
+            const results = await Promise.allSettled(promises);
+
+            lessonsData = [];
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    lessonsData.push(...result.value);
+                } else {
+                    console.warn(`⚠️ الملف ${files[index]} لم يتم تحميله:`, result.reason);
+                }
+            });
+
+            localStorage.setItem('reading_app_lessons', JSON.stringify(lessonsData));
+            renderLessons();
+        } catch (error) {
+            console.error('خطأ في تحميل الدروس:', error);
+            lessonsGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--danger);">
+                <i class="fas fa-exclamation-triangle fa-3x"></i>
+                <p>فشل تحميل الدروس. تأكد من وجود الملفات الأربعة في نفس المجلد.</p>
+            </div>`;
+        }
+    }
+
+    // عرض الدروس في الشبكة مع فلترة
+    function renderLessons() {
+        if (!currentSemester || !currentGrade) {
+            lessonsGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-light);">
+                <i class="fas fa-hand-point-up fa-3x"></i>
+                <p>الرجاء اختيار الفصل والصف أولاً</p>
+            </div>`;
+            startBtn.disabled = true;
+            return;
+        }
+
+        const targetGradeName = getGradeFullName(currentGrade);
+        const targetSemesterName = getSemesterFullName(currentSemester);
+        
+        let filteredLessons = lessonsData.filter(l => 
+            l.grade === targetGradeName && l.semester === targetSemesterName
+        );
+
+        if (searchTerm.trim() !== '') {
+            const term = searchTerm.trim().toLowerCase();
+            filteredLessons = filteredLessons.filter(l => l.title.toLowerCase().includes(term));
+        }
+
+        if (filteredLessons.length === 0) {
+            lessonsGrid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:30px; color:var(--text-light);">
+                <i class="fas fa-folder-open fa-3x"></i>
+                <p>لا توجد نصوص تطابق البحث</p>
+            </div>`;
+            startBtn.disabled = true;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        filteredLessons.forEach(l => {
+            const wordCount = l.content.split(/\s+/).length;
+            const div = document.createElement('div');
+            div.className = `lesson-item ${selectedLessonId === l.id ? 'selected' : ''}`;
+            div.dataset.id = l.id;
+            div.innerHTML = `
+                <span class="word-count-badge">${toIndianNumbers(wordCount)}</span>
+                <i class="fas fa-file-alt"></i>
+                <div class="lesson-title">${escapeHtml(l.title)}</div>
+            `;
+            div.addEventListener('click', () => selectLesson(l.id));
+            fragment.appendChild(div);
+        });
+
+        lessonsGrid.innerHTML = '';
+        lessonsGrid.appendChild(fragment);
+
+        startBtn.disabled = !selectedLessonId;
+    }
+
+    window.selectLesson = function(id) {
+        selectedLessonId = id;
+        renderLessons();
+    };
+
+    function launchReader() {
+        if (!selectedLessonId) {
+            alert("يرجى اختيار نص أولاً");
+            return;
+        }
+        const lesson = lessonsData.find(l => l.id === selectedLessonId);
+        if (!lesson) return;
+
+        const config = {
+            lessonId: selectedLessonId,
+            speed: currentSpeed,
+            mode: currentMode,
+            font: currentFont,
+            theme: document.body.getAttribute('data-theme'),
+            fontSize: currentFontSize
+        };
+
+        sessionStorage.setItem('reader_config', JSON.stringify(config));
+        window.location.href = 'read.html';
+    }
+
+    // ========== إعدادات المستخدم ==========
+    window.setTheme = function(theme) {
+        document.body.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    };
+
+    (function loadTheme() {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+    })();
+
+    function loadUserPrefs() {
+        const prefs = JSON.parse(localStorage.getItem('USER_PREFS_KEY')) || {};
+        
+        if (prefs.font) {
+            const matchingBtn = document.querySelector(`.font-mini-btn[data-font="${prefs.font}"]`);
+            if (matchingBtn) {
+                currentFont = prefs.font;
+                matchingBtn.classList.add('active');
+            } else {
+                currentFont = "'Amiri', serif";
+                document.querySelector('.font-mini-btn[data-font="\'Amiri\', serif"]').classList.add('active');
+            }
+        } else {
+            currentFont = "'Amiri', serif";
+            document.querySelector('.font-mini-btn[data-font="\'Amiri\', serif"]').classList.add('active');
+        }
+        
+        if (prefs.mode) {
+            const modeCard = document.querySelector(`.mode-card[data-mode="${prefs.mode}"]`);
+            if (modeCard) {
+                currentMode = prefs.mode;
+                modeCard.classList.add('active');
+            } else {
+                document.querySelector('.mode-card[data-mode="rsvp"]').classList.add('active');
+            }
+        } else {
+            document.querySelector('.mode-card[data-mode="rsvp"]').classList.add('active');
+        }
+        
+        if (prefs.speed) {
+            currentSpeed = prefs.speed;
+            document.getElementById('speedSlider').value = currentSpeed;
+            updateSpeedDisplay();
+        }
+        
+        if (prefs.fontSize && prefs.fontSize >= 12 && prefs.fontSize <= 96) {
+            currentFontSize = prefs.fontSize;
+        }
+        fontSizeValue.textContent = toIndianNumbers(currentFontSize);
+        updateFontPreview();
+    }
+
+    function saveUserPrefs() {
+        const prefs = {
+            font: currentFont,
+            mode: currentMode,
+            speed: currentSpeed,
+            fontSize: currentFontSize
+        };
+        localStorage.setItem('USER_PREFS_KEY', JSON.stringify(prefs));
+    }
+
+    // ========== Event Listeners ==========
+    document.getElementById('speedSlider').addEventListener('input', function(e) {
+        currentSpeed = e.target.value;
+        updateSpeedDisplay();
+        saveUserPrefs();
+    });
+
+    document.querySelectorAll('.font-mini-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.font-mini-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentFont = this.dataset.font;
+            updateFontPreview();
+            saveUserPrefs();
+        });
+    });
+
+    document.getElementById('increaseFontSize').addEventListener('click', () => {
+        if (currentFontSize < 96) {
+            currentFontSize += 2;
+            fontSizeValue.textContent = toIndianNumbers(currentFontSize);
+            updateFontPreview();
+            saveUserPrefs();
+        }
+    });
+    document.getElementById('decreaseFontSize').addEventListener('click', () => {
+        if (currentFontSize > 12) {
+            currentFontSize -= 2;
+            fontSizeValue.textContent = toIndianNumbers(currentFontSize);
+            updateFontPreview();
+            saveUserPrefs();
+        }
+    });
+
+    document.querySelectorAll('.mode-card').forEach(card => {
+        card.addEventListener('click', function() {
+            document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            currentMode = this.dataset.mode;
+            saveUserPrefs();
+        });
+    });
+
+    document.querySelectorAll('.semester-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.semester-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentSemester = this.dataset.semester;
+            gradeSection.classList.add('show');
+            currentGrade = null;
+            document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
+            selectedLessonId = null;
+            renderLessons();
+            saveUserPrefs();
+        });
+    });
+
+    document.querySelectorAll('.grade-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.grade-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentGrade = this.dataset.grade;
+            selectedLessonId = null;
+            renderLessons();
+            saveUserPrefs();
+        });
+    });
+
+    searchInput.addEventListener('input', function(e) {
+        searchTerm = e.target.value;
+        renderLessons();
+    });
+
+    function escapeHtml(unsafe) {
+        if (typeof unsafe !== 'string') return unsafe;
+        return unsafe.replace(/[&<>"]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            if (m === '"') return '&quot;';
+            return m;
+        });
+    }
+
+    // التهيئة
+    window.onload = () => {
+        loadUserPrefs();
+        loadAllLessons();
+        startBtn.disabled = true;
+        updateSpeedDisplay();
+        fontSizeValue.textContent = toIndianNumbers(currentFontSize);
+        gradeSection.classList.remove('show');
+        currentSemester = null;
+        currentGrade = null;
+    };
+</script>
+</body>
+</html>

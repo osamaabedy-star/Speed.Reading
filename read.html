@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مغامرة القراءة السريعة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amiri&family=Tajawal:wght@400;700&family=Almarai:wght@400;700&family=Readex+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* الأنماط الأساسية مع تحسين المسافات */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', sans-serif; }
+        body * { font-family: inherit; }
+
+        :root {
+            --bg: #f8f9fa;
+            --panel: rgba(255, 255, 255, 0.9);
+            --text: #2b2d42;
+            --primary: #4361ee;
+            --accent: #f72585;
+            --border: #e9eef2;
+            --shadow: 0 10px 30px rgba(0,0,0,0.05);
+            --success: #10b981;
+        }
+
+        [data-theme="dark"] {
+            --bg: #1a1a2e;
+            --panel: rgba(22, 33, 62, 0.95);
+            --text: #e9eef2;
+            --primary: #667eea;
+            --accent: #f472b6;
+            --border: #2d3748;
+        }
+
+        [data-theme="comfort"] {
+            --bg: #e6d5b8;
+            --panel: rgba(250, 240, 230, 0.95);
+            --text: #5e4b3c;
+            --primary: #b38b5d;
+            --accent: #c44536;
+            --border: #d4b89c;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .top-bar {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            position: relative;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .lesson-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+        }
+
+        .school-logo-small {
+            height: 40px;
+            width: auto;
+            border-radius: 8px;
+        }
+
+        .lesson-title {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: var(--primary);
+        }
+
+        .error-toast-top {
+            position: absolute;
+            top: 50%;
+            right: 100%;
+            transform: translateY(-50%);
+            background: var(--accent);
+            color: white;
+            padding: 6px 15px;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 150;
+            margin-right: 10px;
+        }
+        .error-toast-top.show {
+            opacity: 1;
+        }
+        .error-toast-top i {
+            font-size: 1rem;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            background: var(--bg);
+            padding: 8px 20px;
+            border-radius: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .stat-item i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .progress-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+        }
+
+        #progressBar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        #reader-viewport {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        #rsvp-container {
+            font-size: 4rem;
+            font-weight: 700;
+            text-align: center;
+            display: none;
+            width: 100%;
+            padding: 0 20px;
+        }
+        .pivot { color: var(--accent); }
+
+        /* تحسين وضع التمرير - الآن نستخدم .line لكل سطر */
+        #scroll-container {
+            width: calc(100% - 100px);
+            max-width: 1200px;
+            font-size: 2.2rem;
+            line-height: 1.8;
+            text-align: justify;
+            display: none;
+            position: absolute;
+            top: 20px;
+            right: 70px;
+            transform: translateY(100vh);
+            will-change: transform;
+            transition: font-size 0.2s, line-height 0.2s;
+            white-space: pre-line;
+            direction: rtl;
+        }
+
+        .line {
+            margin-bottom: 0.5em;
+        }
+
+        #static-container {
+            width: calc(100% - 100px);
+            max-width: 1200px;
+            font-size: 1.8rem;
+            line-height: 2;
+            text-align: justify;
+            display: none;
+            overflow-y: auto;
+            max-height: 80vh;
+            padding: 20px;
+            background: var(--panel);
+            border-radius: 30px;
+            box-shadow: var(--shadow);
+            transition: font-size 0.2s, line-height 0.2s;
+            margin-right: 70px;
+        }
+
+        .static-content {
+            white-space: pre-wrap;
+        }
+
+        .word {
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .error-word {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-bottom: 2px solid #ef4444;
+        }
+
+        #countdown {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            font-weight: 800;
+            color: var(--primary);
+            z-index: 200;
+        }
+
+        .control-panel {
+            position: fixed;
+            right: 10px;
+            top: 55%;
+            transform: translateY(-50%);
+            background: var(--panel);
+            backdrop-filter: blur(10px);
+            border-radius: 35px;
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: center;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            z-index: 150;
+            width: 40px;
+        }
+
+        .control-btn {
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 0.95rem;
+            cursor: pointer;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+        .control-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .control-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .speed-indicator {
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.7rem;
+            background: var(--bg);
+            padding: 2px 0;
+            width: 100%;
+            text-align: center;
+            border-radius: 20px;
+        }
+
+        .font-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            border-top: 2px solid var(--border);
+            padding-top: 6px;
+            margin-top: 2px;
+        }
+
+        .font-controls .control-btn {
+            width: 24px;
+            height: 24px;
+            font-size: 0.8rem;
+        }
+
+        .words-per-line-control {
+            border-top: 2px solid var(--border);
+            padding-top: 6px;
+            margin-top: 2px;
+            text-align: center;
+            display: none;
+            width: 100%;
+        }
+
+        .words-per-line-control span {
+            font-size: 0.6rem;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .wpl-buttons {
+            display: flex;
+            gap: 1px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wpl-buttons .control-btn {
+            width: 22px;
+            height: 22px;
+            font-size: 0.7rem;
+        }
+
+        #wordsPerLineValue {
+            min-width: 22px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.7rem;
+        }
+
+        .error-left-btn {
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            background-color: var(--accent);
+            color: white;
+            border-radius: 40px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+            font-size: 1.1rem;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(247, 37, 133, 0.4);
+            z-index: 200;
+        }
+
+        .error-left-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(247, 37, 133, 0.6);
+        }
+
+        .error-left-btn i {
+            font-size: 1.3rem;
+        }
+
+        .loading {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .custom-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 300;
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.3s;
+        }
+        .custom-modal.show {
+            visibility: visible;
+            opacity: 1;
+        }
+        .modal-content {
+            background: var(--panel);
+            padding: 30px;
+            border-radius: 40px;
+            text-align: center;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 2px solid var(--primary);
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        .modal-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-btn.primary {
+            background: var(--primary);
+            color: white;
+        }
+        .modal-btn.secondary {
+            background: var(--border);
+            color: var(--text);
+        }
+        .error-list {
+            text-align: right;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--bg);
+            border-radius: 20px;
+        }
+        .error-item {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            margin: 3px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body data-theme="light">
+<div class="loading" id="loadingScreen"><i class="fas fa-spinner fa-spin"></i> جاري التجهيز...</div>
+
+<!-- المودالات -->
+<div class="custom-modal" id="messageModal">
+    <div class="modal-content">
+        <i class="fas fa-info-circle" style="font-size: 3rem; color: var(--primary);" id="modalIcon"></i>
+        <h3 id="modalTitle" style="margin: 15px 0;">رسالة</h3>
+        <p id="modalMessage"></p>
+        <div class="modal-buttons">
+            <button class="modal-btn primary" id="modalConfirmBtn">موافق</button>
+        </div>
+    </div>
+</div>
+
+<div class="custom-modal" id="confirmModal">
+    <div class="modal-content">
+        <i class="fas fa-question-circle" style="font-size: 3rem; color: var(--warning);"></i>
+        <h3 style="margin: 15px 0;">تأكيد</h3>
+        <p id="confirmMessage"></p>
+        <div class="modal-buttons">
+            <button class="modal-btn primary" id="confirmYesBtn">نعم</button>
+            <button class="modal-btn secondary" id="confirmNoBtn">لا</button>
+        </div>
+    </div>
+</div>
+
+<div class="custom-modal" id="reportModal">
+    <div class="modal-content">
+        <i class="fas fa-chart-bar" style="font-size: 3rem; color: var(--primary);"></i>
+        <h2 style="margin: 15px 0;">تقرير القراءة</h2>
+        <div style="text-align: right; margin: 20px 0;">
+            <p><strong>📊 متوسط السرعة:</strong> <span id="reportSpeed">0</span> كلمة/دقيقة</p>
+            <p><strong>📄 عدد الكلمات:</strong> <span id="reportWords">0</span></p>
+            <p><strong>❌ عدد الأخطاء:</strong> <span id="reportErrors">0</span></p>
+            <div id="reportErrorWordsContainer">
+                <p><strong>الكلمات الخاطئة:</strong></p>
+                <div class="error-list" id="reportErrorWords"></div>
+            </div>
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn primary" id="reportQuestionsBtn">انتقل إلى الأسئلة</button>
+            <button class="modal-btn secondary" id="reportHomeBtn">العودة للرئيسية</button>
+        </div>
+    </div>
+</div>
+
+<!-- الشريط العلوي -->
+<div class="top-bar">
+    <div class="lesson-info">
+        <img src="https://www.wzufa.com/wp-content/uploads/2022/07/Riyadh-Al-Ebdaa-Schools.png" alt="شعار المدرسة" class="school-logo-small">
+        <span class="lesson-title" id="lesson-title">جاري التحميل...</span>
+        <span class="error-toast-top" id="errorToastTop">
+            <i class="fas fa-check-circle"></i>
+            <span>تم تسجيل خطأ</span>
+        </span>
+    </div>
+    <div class="stats">
+        <div class="stat-item"><i class="far fa-clock"></i> <span id="timer">00:00</span></div>
+        <div class="stat-item"><i class="fas fa-tachometer-alt"></i> <span id="speed-tag">150</span></div>
+        <div class="stat-item"><i class="fas fa-font"></i> <span id="font-size-indicator">32</span></div>
+    </div>
+    <div class="progress-container">
+        <div id="progressBar"></div>
+    </div>
+</div>
+
+<!-- منطقة عرض النص -->
+<div id="reader-viewport">
+    <div id="countdown"></div>
+    <div id="rsvp-container"><div id="rsvp-word"></div></div>
+    <div id="scroll-container"></div>
+    <div id="static-container"><div class="static-content" id="static-content"></div></div>
+</div>
+
+<!-- لوحة التحكم الجانبية -->
+<div class="control-panel">
+    <button class="control-btn" id="playPauseBtn" title="تشغيل/إيقاف"><i class="fas fa-play"></i></button>
+    <button class="control-btn" id="stopBtn" title="إنهاء"><i class="fas fa-stop"></i></button>
+    <span class="speed-indicator" id="speedDisplay">150</span>
+    <button class="control-btn" id="speedUpBtn" title="زيادة السرعة"><i class="fas fa-plus"></i></button>
+    <button class="control-btn" id="speedDownBtn" title="خفض السرعة"><i class="fas fa-minus"></i></button>
+
+    <div class="font-controls">
+        <button class="control-btn" id="fontIncreaseBtn" title="تكبير الخط"><i class="fas fa-search-plus"></i></button>
+        <button class="control-btn" id="fontDecreaseBtn" title="تصغير الخط"><i class="fas fa-search-minus"></i></button>
+        <button class="control-btn" id="lineHeightIncreaseBtn" title="زيادة التباعد"><i class="fas fa-arrows-alt-v"></i></button>
+        <button class="control-btn" id="lineHeightDecreaseBtn" title="تقليل التباعد"><i class="fas fa-compress-alt"></i></button>
+    </div>
+
+    <div class="words-per-line-control" id="wplControl">
+        <span>كلمات/سطر</span>
+        <div class="wpl-buttons">
+            <button class="control-btn" id="wplDown"><i class="fas fa-minus"></i></button>
+            <span id="wordsPerLineValue">10</span>
+            <button class="control-btn" id="wplUp"><i class="fas fa-plus"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- زر الخطأ في الشمال مع نص (يظهر فقط في وضع RSVP) -->
+<button class="error-left-btn" id="errorBtn" title="تسجيل خطأ" style="display: none;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span>سجل خطأ</span>
+</button>
+
+<script>
+    (function() {
+        // إخفاء شاشة التحميل
+        window.addEventListener('load', () => {
+            document.getElementById('loadingScreen').style.display = 'none';
+        });
+
+        const errorToastTop = document.getElementById('errorToastTop');
+        function showErrorToastTop() {
+            errorToastTop.classList.add('show');
+            setTimeout(() => {
+                errorToastTop.classList.remove('show');
+            }, 1500);
+        }
+
+        function toIndianNumbers(num) {
+            const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            return num.toString().replace(/\d/g, (d) => arabicNumbers[d]);
+        }
+
+        // دالة تنسيق النص إلى أسطر بعدد كلمات محدد مع إضافة div لكل سطر
+        function formatTextToFixedWordsHTML(text, wordsPerLine = 5) {
+            const words = text.split(/\s+/);
+            let lines = [];
+            for (let i = 0; i < words.length; i += wordsPerLine) {
+                let lineWords = words.slice(i, i + wordsPerLine);
+                let lineHTML = lineWords.map((word, idx) => 
+                    `<span class="word" data-word="${escapeHtml(word)}" data-index="${i + idx}" onclick="window.toggleError(this)">${escapeHtml(word)}</span>`
+                ).join(' ');
+                lines.push(`<div class="line">${lineHTML}</div>`);
+            }
+            return lines.join('');
+        }
+
+        // قراءة الإعدادات
+        const config = JSON.parse(sessionStorage.getItem('reader_config'));
+        if (!config) {
+            alert('لم يتم تحديد إعدادات القراءة. سيتم تحويلك للصفحة الرئيسية.');
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const allLessons = JSON.parse(localStorage.getItem('reading_app_lessons')) || [];
+        const lesson = allLessons.find(l => l.id === config.lessonId);
+        if (!lesson) {
+            alert('النص المطلوب غير موجود.');
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const words = lesson.content.trim().split(/\s+/);
+        let currentIndex = 0;
+        let isPlaying = false;
+        let startTime = null;
+        let timerInterval = null;
+        let rafId = null;
+        let currentSpeed = parseInt(config.speed) || 150;
+        let rsvpTimer = null;
+        let wordTimeMs = 60000 / currentSpeed;
+        
+        let scrollLastTimestamp = 0;
+        let scrollCurrentY = 0;
+        let scrollTotalDistance = 0;
+        let scrollPixelsPerSecond = 0;
+        
+        let currentWordsPerLine = 10;
+        
+        let totalErrors = 0;
+        let errorIndices = []; // استخدام فهارس بدلاً من الكلمات
+
+        let currentFontSize = parseInt(config.fontSize) || 32;
+        let currentLineHeight = 1.8;
+
+        if (config.theme) {
+            document.body.setAttribute('data-theme', config.theme);
+        }
+        document.body.style.fontFamily = config.font;
+
+        // عناصر DOM
+        const lessonTitleEl = document.getElementById('lesson-title');
+        const speedTagEl = document.getElementById('speed-tag');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const timerEl = document.getElementById('timer');
+        const fontSizeIndicator = document.getElementById('font-size-indicator');
+        const rsvpContainer = document.getElementById('rsvp-container');
+        const scrollContainer = document.getElementById('scroll-container');
+        const staticContainer = document.getElementById('static-container');
+        const staticContent = document.getElementById('static-content');
+        const rsvpWordEl = document.getElementById('rsvp-word');
+        const countdownEl = document.getElementById('countdown');
+        const progressBar = document.getElementById('progressBar');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const speedUpBtn = document.getElementById('speedUpBtn');
+        const speedDownBtn = document.getElementById('speedDownBtn');
+        const fontIncreaseBtn = document.getElementById('fontIncreaseBtn');
+        const fontDecreaseBtn = document.getElementById('fontDecreaseBtn');
+        const lineHeightIncreaseBtn = document.getElementById('lineHeightIncreaseBtn');
+        const lineHeightDecreaseBtn = document.getElementById('lineHeightDecreaseBtn');
+        const errorBtn = document.getElementById('errorBtn');
+        const wplControl = document.getElementById('wplControl');
+        const wplUp = document.getElementById('wplUp');
+        const wplDown = document.getElementById('wplDown');
+        const wordsPerLineValue = document.getElementById('wordsPerLineValue');
+
+        const messageModal = document.getElementById('messageModal');
+        const modalIcon = document.getElementById('modalIcon');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmYesBtn = document.getElementById('confirmYesBtn');
+        const confirmNoBtn = document.getElementById('confirmNoBtn');
+        const reportModal = document.getElementById('reportModal');
+        const reportSpeed = document.getElementById('reportSpeed');
+        const reportWords = document.getElementById('reportWords');
+        const reportErrors = document.getElementById('reportErrors');
+        const reportErrorWordsContainer = document.getElementById('reportErrorWordsContainer');
+        const reportErrorWords = document.getElementById('reportErrorWords');
+        const reportQuestionsBtn = document.getElementById('reportQuestionsBtn');
+        const reportHomeBtn = document.getElementById('reportHomeBtn');
+
+        function showMessage(msg, title = 'رسالة', type = 'info', onConfirm = null) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = msg;
+            modalIcon.className = type === 'error' ? 'fas fa-exclamation-circle' : (type === 'success' ? 'fas fa-check-circle' : 'fas fa-info-circle');
+            modalIcon.style.color = type === 'error' ? 'var(--danger)' : (type === 'success' ? 'var(--success)' : 'var(--primary)');
+            messageModal.classList.add('show');
+            modalConfirmBtn.onclick = () => {
+                messageModal.classList.remove('show');
+                if (onConfirm) onConfirm();
+            };
+        }
+
+        function showConfirm(msg, onYes, onNo) {
+            confirmMessage.textContent = msg;
+            confirmModal.classList.add('show');
+            confirmYesBtn.onclick = () => {
+                confirmModal.classList.remove('show');
+                if (onYes) onYes();
+            };
+            confirmNoBtn.onclick = () => {
+                confirmModal.classList.remove('show');
+                if (onNo) onNo();
+            };
+        }
+
+        reportQuestionsBtn.onclick = () => {
+            releaseWakeLock();
+            window.location.href = 'questions.html';
+        };
+        reportHomeBtn.onclick = () => {
+            releaseWakeLock();
+            window.location.href = 'index.html';
+        };
+
+        lessonTitleEl.innerText = lesson.title;
+        updateSpeedDisplay();
+        updateFontSizeDisplay();
+
+        if (config.mode === 'rsvp') {
+            rsvpContainer.style.display = 'block';
+            rsvpContainer.style.fontSize = currentFontSize + 'px';
+            errorBtn.style.display = 'flex';
+            wplControl.style.display = 'none';
+        } else if (config.mode === 'scroll') {
+            scrollContainer.style.display = 'block';
+            scrollContainer.innerHTML = formatTextToFixedWordsHTML(lesson.content, currentWordsPerLine);
+            scrollContainer.style.fontSize = currentFontSize + 'px';
+            scrollContainer.style.lineHeight = currentLineHeight;
+            
+            // حساب المسافة الكلية والبدء من الأسفل
+            const viewportHeight = window.innerHeight;
+            const textHeight = scrollContainer.offsetHeight;
+            scrollTotalDistance = textHeight + viewportHeight;
+            scrollPixelsPerSecond = scrollTotalDistance / ((words.length / currentSpeed) * 60);
+            
+            // نبدأ من الأسفل: النص بأكمله أسفل الشاشة
+           scrollCurrentY = window.innerHeight;
+            scrollContainer.style.transform = `translateY(${scrollCurrentY}px)`;
+            
+            errorBtn.style.display = 'none';
+            wplControl.style.display = 'block';
+            wordsPerLineValue.innerText = currentWordsPerLine;
+        } else if (config.mode === 'static') {
+            staticContainer.style.display = 'block';
+            staticContent.innerHTML = formatTextToFixedWordsHTML(lesson.content, 1000); // عدد كبير لكي يظهر كنص ثابت مع كلمات قابلة للنقر
+            staticContainer.style.fontSize = (currentFontSize - 4) + 'px';
+            staticContainer.style.lineHeight = currentLineHeight;
+            errorBtn.style.display = 'none';
+            wplControl.style.display = 'none';
+        }
+
+        function updateFontSizeDisplay() {
+            fontSizeIndicator.innerText = currentFontSize;
+        }
+
+        function recalcScrollDistance() {
+            if (config.mode !== 'scroll') return;
+            const wasPlaying = isPlaying;
+            if (wasPlaying) togglePlay();
+
+            // حفظ المسافة المقطوعة الحالية (كم بكسل تم تمريره للأعلى)
+            const oldScrolledDistance = -scrollCurrentY; // قد تكون 0 أو موجبة
+            const oldTotalDistance = scrollTotalDistance;
+
+            // إعادة بناء المحتوى
+            scrollContainer.innerHTML = formatTextToFixedWordsHTML(lesson.content, currentWordsPerLine);
+            scrollContainer.style.fontSize = currentFontSize + 'px';
+            scrollContainer.style.lineHeight = currentLineHeight;
+
+            const textHeight = scrollContainer.offsetHeight;
+            const viewportHeight = window.innerHeight;
+            const newTotalDistance = textHeight + viewportHeight;
+            scrollTotalDistance = newTotalDistance;
+            const totalSeconds = (words.length / currentSpeed) * 60;
+            scrollPixelsPerSecond = scrollTotalDistance / totalSeconds;
+
+            // حساب المسافة الجديدة بنفس النسبة
+            let newScrolledDistance = 0;
+            if (oldTotalDistance > 0) {
+                const progress = oldScrolledDistance / oldTotalDistance;
+                newScrolledDistance = progress * newTotalDistance;
+            }
+            // نطبق الحدود: لا تتجاوز totalDistance
+            newScrolledDistance = Math.min(newTotalDistance, Math.max(0, newScrolledDistance));
+            scrollCurrentY = -newScrolledDistance;
+            scrollContainer.style.transform = `translateY(${scrollCurrentY}px)`;
+
+            if (wasPlaying) {
+                isPlaying = true;
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                scrollLastTimestamp = 0;
+                rafId = requestAnimationFrame(scrollStep);
+            }
+        }
+
+        function startCountdown() {
+            let count = 3;
+            countdownEl.style.display = 'block';
+            playPauseBtn.disabled = true;
+            stopBtn.disabled = true;
+            speedUpBtn.disabled = true;
+            speedDownBtn.disabled = true;
+            const interval = setInterval(() => {
+                if (count > 0) {
+                    countdownEl.innerText = count;
+                } else if (count === 0) {
+                    countdownEl.innerText = "انطلق!";
+                } else {
+                    clearInterval(interval);
+                    countdownEl.style.display = 'none';
+                    playPauseBtn.disabled = false;
+                    stopBtn.disabled = false;
+                    speedUpBtn.disabled = false;
+                    speedDownBtn.disabled = false;
+                    startReading();
+                }
+                count--;
+            }, 500);
+        }
+
+        function updateSpeedDisplay() {
+            speedTagEl.innerText = currentSpeed;
+            speedDisplay.innerText = currentSpeed;
+            wordTimeMs = 60000 / currentSpeed;
+        }
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+
+        let wakeLock = null;
+
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLock.addEventListener('release', () => {
+                        console.log('تم تحرير قفل الشاشة');
+                    });
+                }
+            } catch (err) {
+                console.error('خطأ في تفعيل قفل الشاشة:', err);
+            }
+        }
+
+        function releaseWakeLock() {
+            if (wakeLock) {
+                wakeLock.release().catch(err => console.error(err)).finally(() => wakeLock = null);
+            }
+        }
+
+        function startReading() {
+            isPlaying = true;
+            startTime = Date.now();
+            startTimer();
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            requestWakeLock();
+
+            if (config.mode === 'rsvp') {
+                currentIndex = 0;
+                scheduleNextRSVP();
+            } else if (config.mode === 'scroll') {
+                scrollLastTimestamp = 0;
+                rafId = requestAnimationFrame(scrollStep);
+            }
+        }
+
+        function cleanWord(word) {
+            return word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?؟،…]/g, '');
+        }
+
+        function hasPunctuation(word) {
+            return /[.!?،؛:]$/.test(word);
+        }
+
+        function scheduleNextRSVP(immediate = false) {
+            if (!isPlaying || currentIndex >= words.length) {
+                if (currentIndex >= words.length) finish();
+                return;
+            }
+
+            displayWord(currentIndex);
+            progressBar.style.width = ((currentIndex + 1) / words.length) * 100 + '%';
+            
+            const currentWord = words[currentIndex];
+            currentIndex++;
+
+            if (currentIndex < words.length) {
+                let delay = immediate ? 0 : wordTimeMs;
+                if (hasPunctuation(currentWord)) {
+                    delay *= 1.5;
+                }
+                rsvpTimer = setTimeout(scheduleNextRSVP, delay);
+            } else {
+                setTimeout(finish, wordTimeMs);
+            }
+        }
+
+        function displayWord(index) {
+            let word = words[index];
+            const clean = cleanWord(word);
+            const pivotIdx = Math.floor(clean.length / 2);
+            const before = clean.substring(0, pivotIdx);
+            const pivot = clean[pivotIdx];
+            const after = clean.substring(pivotIdx + 1);
+            rsvpWordEl.innerHTML = `${escapeHtml(before)}<span class="pivot">${escapeHtml(pivot)}</span>${escapeHtml(after)}`;
+        }
+
+        function scrollStep(timestamp) {
+            if (!isPlaying) return;
+
+            if (!scrollLastTimestamp) {
+                scrollLastTimestamp = timestamp;
+                rafId = requestAnimationFrame(scrollStep);
+                return;
+            }
+
+            const elapsed = (timestamp - scrollLastTimestamp) / 1000;
+            const delta = scrollPixelsPerSecond * elapsed;
+            scrollCurrentY -= delta;
+            scrollContainer.style.transform = `translateY(${scrollCurrentY}px)`;
+
+            const progress = Math.min(100, Math.max(0, ((-scrollCurrentY) / scrollTotalDistance) * 100));
+            progressBar.style.width = progress + '%';
+
+            scrollLastTimestamp = timestamp;
+
+            if (-scrollCurrentY < scrollTotalDistance - window.innerHeight) {
+                rafId = requestAnimationFrame(scrollStep);
+            } else {
+                finish();
+            }
+        }
+
+        function recordError() {
+            if (!isPlaying) return;
+            totalErrors++;
+            
+            if (config.mode === 'rsvp' && currentIndex > 0) {
+                const errorWord = words[currentIndex - 1];
+                // لا نستخدم errorIndices هنا لأننا لا نعرف فهرس الكلمة في النص الأصلي بسهولة
+                // نكتفي بعد الأخطاء الكلي
+                const wordElement = rsvpWordEl;
+                wordElement.style.transition = 'color 0.2s';
+                wordElement.style.color = 'var(--accent)';
+                setTimeout(() => {
+                    wordElement.style.color = '';
+                }, 300);
+            }
+            
+            showErrorToastTop();
+        }
+
+        errorBtn.addEventListener('click', recordError);
+
+        window.toggleError = function(element) {
+            if (!isPlaying) return;
+            element.classList.toggle('error-word');
+            const index = parseInt(element.dataset.index, 10);
+            if (element.classList.contains('error-word')) {
+                if (!errorIndices.includes(index)) {
+                    errorIndices.push(index);
+                }
+            } else {
+                errorIndices = errorIndices.filter(i => i !== index);
+            }
+            totalErrors = errorIndices.length;
+            showErrorToastTop();
+        };
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (startTime) {
+                    const diff = Math.floor((Date.now() - startTime) / 1000);
+                    timerEl.innerHTML = formatTime(diff);
+                }
+            }, 1000);
+        }
+
+        function togglePlay() {
+            if (!startTime) return;
+            isPlaying = !isPlaying;
+            playPauseBtn.innerHTML = isPlaying ? '<i class="fas fa-pause"></i>' : '<i class="fas fa-play"></i>';
+
+            if (isPlaying) {
+                if (!timerInterval) {
+                    startTimer();
+                }
+                if (config.mode === 'rsvp') {
+                    scheduleNextRSVP();
+                } else if (config.mode === 'scroll') {
+                    scrollLastTimestamp = 0;
+                    rafId = requestAnimationFrame(scrollStep);
+                }
+            } else {
+                if (rsvpTimer) {
+                    clearTimeout(rsvpTimer);
+                    rsvpTimer = null;
+                }
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+        }
+
+        function stopReading() {
+            showConfirm('هل تريد إنهاء القراءة الآن؟', () => {
+                finish();
+            }, () => {});
+        }
+
+        function finish() {
+            releaseWakeLock();
+            clearInterval(timerInterval);
+            if (rsvpTimer) {
+                clearTimeout(rsvpTimer);
+                rsvpTimer = null;
+            }
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+            isPlaying = false;
+
+            const endTime = Date.now();
+            const duration = Math.floor((endTime - startTime) / 1000);
+            
+            let wordsRead;
+            if (config.mode === 'scroll') {
+                const progress = Math.min(1, Math.max(0, (-scrollCurrentY) / scrollTotalDistance));
+                wordsRead = Math.round(words.length * progress);
+            } else {
+                wordsRead = currentIndex;
+            }
+            const minutes = duration / 60;
+            const avgSpeed = minutes > 0 ? Math.round(wordsRead / minutes) : 0;
+
+            reportSpeed.textContent = toIndianNumbers(avgSpeed);
+            reportWords.textContent = toIndianNumbers(words.length);
+            reportErrors.textContent = toIndianNumbers(totalErrors);
+            
+            if (errorIndices.length > 0) {
+                reportErrorWordsContainer.style.display = 'block';
+                const errorWordList = errorIndices.map(i => words[i]).filter(w => w);
+                reportErrorWords.innerHTML = errorWordList.map(w => `<span class="error-item">${escapeHtml(w)}</span>`).join('');
+            } else {
+                reportErrorWordsContainer.style.display = 'none';
+            }
+
+            reportModal.classList.add('show');
+
+            const sessionData = {
+                lessonId: config.lessonId,
+                lessonTitle: lesson.title,
+                grade: lesson.grade,
+                semester: lesson.semester,
+                totalWords: words.length,
+                duration: duration,
+                speed: currentSpeed,
+                errors: totalErrors,
+                startTime: startTime,
+                endTime: endTime,
+                theme: config.theme,
+                questions: lesson.questions || []
+            };
+            sessionStorage.setItem('currentReadingSession', JSON.stringify(sessionData));
+        }
+
+        playPauseBtn.addEventListener('click', togglePlay);
+        stopBtn.addEventListener('click', stopReading);
+
+        function adjustSpeed(newSpeed) {
+            currentSpeed = newSpeed;
+            updateSpeedDisplay();
+            if (config.mode === 'scroll' && isPlaying) {
+                const totalSeconds = (words.length / currentSpeed) * 60;
+                scrollPixelsPerSecond = scrollTotalDistance / totalSeconds;
+            }
+            if (config.mode === 'rsvp' && isPlaying) {
+                if (rsvpTimer) {
+                    clearTimeout(rsvpTimer);
+                    rsvpTimer = null;
+                }
+                scheduleNextRSVP(true);
+            }
+        }
+
+        speedUpBtn.addEventListener('click', () => {
+            let newSpeed = Number(currentSpeed) + 10;
+            if (newSpeed > 400) newSpeed = 400;
+            adjustSpeed(newSpeed);
+        });
+
+        speedDownBtn.addEventListener('click', () => {
+            let newSpeed = Number(currentSpeed) - 10;
+            if (newSpeed < 10) newSpeed = 10;
+            adjustSpeed(newSpeed);
+        });
+
+        wplUp.addEventListener('click', () => {
+            if (currentWordsPerLine < 20) {
+                currentWordsPerLine++;
+                wordsPerLineValue.innerText = currentWordsPerLine;
+                if (config.mode === 'scroll') {
+                    recalcScrollDistance();
+                }
+            }
+        });
+
+        wplDown.addEventListener('click', () => {
+            if (currentWordsPerLine > 1) {
+                currentWordsPerLine--;
+                wordsPerLineValue.innerText = currentWordsPerLine;
+                if (config.mode === 'scroll') {
+                    recalcScrollDistance();
+                }
+            }
+        });
+
+        fontIncreaseBtn.addEventListener('click', () => {
+            if (currentFontSize < 96) {
+                currentFontSize += 4;
+                if (config.mode === 'rsvp') {
+                    rsvpContainer.style.fontSize = currentFontSize + 'px';
+                } else if (config.mode === 'scroll') {
+                    scrollContainer.style.fontSize = currentFontSize + 'px';
+                    recalcScrollDistance();
+                } else if (config.mode === 'static') {
+                    staticContainer.style.fontSize = currentFontSize + 'px';
+                }
+                updateFontSizeDisplay();
+            }
+        });
+
+        fontDecreaseBtn.addEventListener('click', () => {
+            if (currentFontSize > 12) {
+                currentFontSize -= 4;
+                if (config.mode === 'rsvp') {
+                    rsvpContainer.style.fontSize = currentFontSize + 'px';
+                } else if (config.mode === 'scroll') {
+                    scrollContainer.style.fontSize = currentFontSize + 'px';
+                    recalcScrollDistance();
+                } else if (config.mode === 'static') {
+                    staticContainer.style.fontSize = currentFontSize + 'px';
+                }
+                updateFontSizeDisplay();
+            }
+        });
+
+        lineHeightIncreaseBtn.addEventListener('click', () => {
+            currentLineHeight += 0.2;
+            if (config.mode === 'scroll') {
+                scrollContainer.style.lineHeight = currentLineHeight;
+                recalcScrollDistance();
+            } else if (config.mode === 'static') {
+                staticContainer.style.lineHeight = currentLineHeight;
+            }
+        });
+
+        lineHeightDecreaseBtn.addEventListener('click', () => {
+            if (currentLineHeight > 1.2) {
+                currentLineHeight -= 0.2;
+                if (config.mode === 'scroll') {
+                    scrollContainer.style.lineHeight = currentLineHeight;
+                    recalcScrollDistance();
+                } else if (config.mode === 'static') {
+                    staticContainer.style.lineHeight = currentLineHeight;
+                }
+            }
+        });
+
+        document.getElementById('reader-viewport').addEventListener('click', (e) => {
+            if (config.mode === 'rsvp' && !e.target.closest('#rsvp-word')) {
+                togglePlay();
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                togglePlay();
+            } else if (e.code === 'ArrowUp') {
+                e.preventDefault();
+                speedUpBtn.click();
+            } else if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                speedDownBtn.click();
+            }
+        });
+
+        function escapeHtml(unsafe) {
+            return unsafe.replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        startCountdown();
+    })();
+</script>
+</body>
+</html>
+
