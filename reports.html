@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
+        /* نفس الأنماط السابقة - احتفظ بها كما هي */
         :root {
             --primary: #4361ee;
             --primary-light: #4895ef;
@@ -249,6 +250,15 @@
             color: var(--text-light);
             font-size: 0.8rem;
         }
+        .error-message {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 15px;
+            border-radius: 40px;
+            text-align: center;
+            margin: 20px 0;
+        }
     </style>
 </head>
 <body data-theme="light">
@@ -353,18 +363,33 @@
         let quizzes = [];
 
         try {
-            // جلب جلسات القراءة للمستخدم الحالي
+            // انتظر حتى يتم فتح قاعدة البيانات
+            if (!db) {
+                // إذا لم تكن قاعدة البيانات جاهزة، ننتظر قليلاً
+                await new Promise(resolve => {
+                    const checkDB = setInterval(() => {
+                        if (db) {
+                            clearInterval(checkDB);
+                            resolve();
+                        }
+                    }, 100);
+                });
+            }
+
             sessions = await getReadingSessions(currentUser.username);
-            // جلب نتائج الاختبارات
             quizzes = await getQuizResults(currentUser.username);
+
+            console.log('الجلسات المسترجعة:', sessions);
+            console.log('نتائج الاختبارات:', quizzes);
+
         } catch (error) {
             console.error('خطأ في جلب البيانات:', error);
-            sessionsBody.innerHTML = `<tr><td colspan="6" style="color:var(--danger);">فشل تحميل البيانات</td></tr>`;
+            sessionsBody.innerHTML = `<tr><td colspan="6" style="color:var(--danger);">فشل تحميل البيانات: ${error.message}</td></tr>`;
         }
 
         // إذا لا توجد بيانات
         if (sessions.length === 0 && quizzes.length === 0) {
-            sessionsBody.innerHTML = `<tr><td colspan="6" class="no-data">لا توجد جلسات قراءة بعد</td></tr>`;
+            sessionsBody.innerHTML = `<tr><td colspan="6" class="no-data">لا توجد جلسات قراءة بعد. قم بقراءة بعض الدروس أولاً.</td></tr>`;
         }
 
         // حساب الإحصائيات العامة
@@ -391,31 +416,35 @@
         const speedData = sortedSessions.map(s => s.speed || 0);
         const sessionLabels = sortedSessions.map((s, i) => `جلسة ${i+1}`);
 
-        const ctxSpeed = document.getElementById('speedChart').getContext('2d');
-        new Chart(ctxSpeed, {
-            type: 'line',
-            data: {
-                labels: sessionLabels,
-                datasets: [{
-                    label: 'السرعة (كلمة/دقيقة)',
-                    data: speedData,
-                    borderColor: '#4361ee',
-                    backgroundColor: 'rgba(67, 97, 238, 0.1)',
-                    tension: 0.3,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
+        if (speedData.length > 0) {
+            const ctxSpeed = document.getElementById('speedChart').getContext('2d');
+            new Chart(ctxSpeed, {
+                type: 'line',
+                data: {
+                    labels: sessionLabels,
+                    datasets: [{
+                        label: 'السرعة (كلمة/دقيقة)',
+                        data: speedData,
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        tension: 0.3,
+                        fill: true
+                    }]
                 },
-                scales: {
-                    y: { beginAtZero: true }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            document.getElementById('speedChart').parentNode.innerHTML = '<p class="no-data">لا توجد بيانات كافية للرسم البياني</p>';
+        }
 
         // رسم بياني دائري لتوزيع الدرجات (ممتاز، جيد، مقبول، ضعيف)
         let excellent = 0, good = 0, acceptable = 0, poor = 0;
@@ -423,35 +452,40 @@
             const score = q.score || 0;
             if (score >= 85) excellent++;
             else if (score >= 70) good++;
-            else if ( score >= 50) acceptable++;
+            else if (score >= 50) acceptable++;
             else poor++;
         });
 
-        const ctxPie = document.getElementById('scorePieChart').getContext('2d');
-        new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: ['ممتاز (85+)', 'جيد (70-84)', 'مقبول (50-69)', 'ضعيف (<50)'],
-                datasets: [{
-                    data: [excellent, good, acceptable, poor],
-                    backgroundColor: ['#10b981', '#4361ee', '#f59e0b', '#ef4444'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'bottom' }
+        if (quizzes.length > 0) {
+            const ctxPie = document.getElementById('scorePieChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'pie',
+                data: {
+                    labels: ['ممتاز (85+)', 'جيد (70-84)', 'مقبول (50-69)', 'ضعيف (<50)'],
+                    datasets: [{
+                        data: [excellent, good, acceptable, poor],
+                        backgroundColor: ['#10b981', '#4361ee', '#f59e0b', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            document.getElementById('scorePieChart').parentNode.innerHTML = '<p class="no-data">لا توجد نتائج اختبارات بعد</p>';
+        }
 
         // عرض آخر 10 جلسات في الجدول
         const recentSessions = [...sessions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 10);
         if (recentSessions.length > 0) {
             sessionsBody.innerHTML = recentSessions.map(s => {
-                const date = new Date(s.date).toLocaleDateString('ar-EG');
-                const quiz = quizzes.find(q => q.lessonId === s.lessonId && new Date(q.date) > new Date(s.date)); // ربما نأخذ أحدث اختبار بعد الجلسة
+                const date = s.date ? new Date(s.date).toLocaleDateString('ar-EG') : 'غير معروف';
+                // نبحث عن اختبار له نفس الدرس بعد الجلسة (بفرض أن quiz له نفس lessonId)
+                const quiz = quizzes.find(q => q.lessonId === s.lessonId && new Date(q.date) > new Date(s.date));
                 const score = quiz ? quiz.score : '—';
                 return `
                 <tr>
@@ -468,10 +502,7 @@
         }
     })();
 
-    // دوال مساعدة لجلب البيانات من IndexedDB (يجب إضافتها في database.js ولكننا سنضيفها هنا مؤقتاً)
-    // ملاحظة: هذه الدوال يجب أن تكون موجودة في database.js، إذا لم تكن موجودة سنضيفها هنا.
-    // سنقوم بتعريفها محلياً إذا لم تكن معرفة مسبقاً.
-
+    // دوال مساعدة لجلب البيانات من IndexedDB (إذا لم تكن موجودة في database.js نضيفها هنا)
     async function getReadingSessions(username) {
         return new Promise((resolve, reject) => {
             if (!db) return reject('قاعدة البيانات غير جاهزة');
@@ -480,7 +511,7 @@
             const index = store.index('username');
             const request = index.getAll(username);
             request.onsuccess = () => resolve(request.result || []);
-            request.onerror = () => reject('فشل في جلب الجلسات');
+            request.onerror = (e) => reject('فشل في جلب الجلسات: ' + e.target.error);
         });
     }
 
@@ -492,7 +523,7 @@
             const index = store.index('username');
             const request = index.getAll(username);
             request.onsuccess = () => resolve(request.result || []);
-            request.onerror = () => reject('فشل في جلب نتائج الاختبارات');
+            request.onerror = (e) => reject('فشل في جلب نتائج الاختبارات: ' + e.target.error);
         });
     }
 
